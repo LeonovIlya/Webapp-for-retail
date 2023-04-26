@@ -1,0 +1,10 @@
+Django
+django_rest_passwordreset
+djangorestframework
+requests
+ujson
+pyyaml
+celery
+djoser
+psycopg2-binary
+django-grappelli

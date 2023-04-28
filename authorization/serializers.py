@@ -10,7 +10,8 @@ class UserCreateSerializer(UserCreateSerializer):
 
 
 class UserRegSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(style={'input_type': 'password'}, write_only=True)
+    password2 = serializers.CharField(style={'input_type': 'password'},
+                                      write_only=True)
 
     class Meta:
         model = User
@@ -24,7 +25,8 @@ class UserRegSerializer(serializers.ModelSerializer):
         password2 = self.validated_data['password2']
 
         if password != password2:
-            raise serializers.ValidationError({'password error': 'passwords must match'})
+            raise serializers.ValidationError({'password error':
+                                               'passwords must match'})
         user.set_password(password)
         user.save()
         return user

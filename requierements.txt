@@ -8,3 +8,4 @@ celery
 djoser
 psycopg2-binary
 django-grappelli
+factory-boy

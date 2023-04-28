@@ -1,5 +1,4 @@
 /.idea/
 /venv/
-/static/
 /authorization/migrations/
 /backend/migrations/

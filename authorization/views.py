@@ -46,7 +46,8 @@ class ContactView(APIView):
             contact = Contact.objects.get(user=request.user)
             serializer = ContactSerializer(contact)
         except:
-            return Response({'response': f'{request.user} has no contacts. You can make PUT request'})
+            return Response({'response': f'{request.user} has no contacts. '
+                                         f'You can make PUT request'})
         return Response(serializer.data)
 
     def put(self, request):

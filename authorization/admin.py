@@ -8,7 +8,8 @@ from .models import Contact
 class UserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('username', 'company', 'position', 'type')}),
+        (_('Personal info'), {'fields': ('username', 'company', 'position',
+                                         'type')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )

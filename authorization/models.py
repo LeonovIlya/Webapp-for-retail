@@ -65,7 +65,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class Contact(models.Model):
-    user = models.ForeignKey(User, verbose_name='Пользователь',
+    user = models.ForeignKey(User,
+                             verbose_name='Пользователь',
                              related_name='contacts',
                              blank=True,
                              on_delete=models.CASCADE)
@@ -88,7 +89,7 @@ class Contact(models.Model):
     apartment = models.CharField(max_length=15,
                                  verbose_name='Квартира',
                                  blank=True)
-    phone = models.CharField(max_length=20,
+    phone = models.CharField(max_length=40,
                              verbose_name='Телефон',
                              blank=True)
 
@@ -97,7 +98,8 @@ class Contact(models.Model):
         verbose_name_plural = 'Список контактов пользователя'
 
     def __str__(self):
-        return f'{self.city}, ул.{self.street}, дом {self.house} ({self.phone})'
+        return f'{self.city}, ул.{self.street}, дом {self.house}' \
+               f' ({self.phone})'
 
 
 class ConfirmEmailToken(models.Model):

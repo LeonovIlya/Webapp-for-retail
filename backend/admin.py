@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter, Order, OrderItem, Brand
+from .models import Shop, Category, Product, ProductInfo, Parameter, \
+    ProductParameter, Order, OrderItem, Brand
 
 # admin.site.register(Shop)
 # admin.site.register(Category)
@@ -30,7 +31,8 @@ class ShopAdmin(admin.ModelAdmin):
 
 @admin.register(ProductInfo)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ['product', 'model', 'shop', 'quantity', 'price', 'price_rrc']
+    list_display = ['product', 'model', 'shop', 'quantity', 'price',
+                    'price_rrc']
     list_filter = ['product']
 
 

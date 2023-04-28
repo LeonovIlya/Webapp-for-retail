@@ -23,3 +23,15 @@ python manage.py collectstatic
 ```bash
 python manage.py runserver <IP-address>:8000
 ```
+
+
+Заполнение таблиц User, Contacts фэйковыми данными:
+```bash
+python manage.py shell  
+```
+```bash
+from authorization.factory import ContactFactory
+```
+```bash
+x = ContactFactory.create_batch(100)
+```

@@ -15,30 +15,30 @@ from .models import Shop, Category, Product, ProductInfo, Parameter, \
 @admin.register(Shop)
 class ShopAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'url', 'user']
-    list_display_links = ['id', 'name', 'url', 'user']
+    list_filter = ['name']
 
 
 @admin.register(Category)
 class ShopAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'name']
 
 
 @admin.register(Product)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category']
-    list_filter = ['name']
+    list_display = ['id', 'name', 'category']
+    list_filter = ['category']
 
 
 @admin.register(ProductInfo)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ['product', 'model', 'shop', 'quantity', 'price',
-                    'price_rrc']
-    list_filter = ['product']
+    list_display = ['id', 'brand', 'product', 'model', 'shop', 'quantity',
+                    'price', 'price_rrc']
+    list_filter = ['brand', 'shop']
 
 
 @admin.register(Parameter)
 class ShopAdmin(admin.ModelAdmin):
-    pass
+    list_display = ['id', 'name']
 
 
 @admin.register(ProductParameter)
@@ -52,15 +52,15 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'status', 'created', 'updated',
                     'total_items_count']
     list_display_links = ['user']
-    list_filter = ['user', 'status', 'created', 'updated', ]
+    list_filter = ['user', 'status', 'created', 'updated']
 
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ['order', 'category', 'shop', 'product_name', 'model',
+    list_display = ['order', 'category', 'shop', 'brand', 'product',
                     'quantity', 'price_per_item', 'total_price']
 
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ['name']
+    list_display = ['id', 'name']

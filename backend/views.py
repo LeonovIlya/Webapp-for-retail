@@ -399,7 +399,7 @@ class PartnerOrders(APIView):
                             status=status.HTTP_403_FORBIDDEN)
         pr = Prefetch('ordered_items',
                       queryset=OrderItem.objects.filter(
-            shop__user_id=request.user.id))
+                          shop__user_id=request.user.id))
         order = Order.objects.filter(
             ordered_items__shop__user_id=request.user.id).exclude(
             status='basket') \

@@ -18,6 +18,19 @@ STATUS_CHOICES = (
 )
 
 
+class Brand(models.Model):
+    name = models.CharField('Торговая марка',
+                            max_length=80)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Торговая марка'
+        verbose_name_plural = 'Торговые марки'
+        ordering = ('name',)
+
+
 class Shop(models.Model):
     name = models.CharField(max_length=50,
                             verbose_name='Название')
@@ -30,7 +43,7 @@ class Shop(models.Model):
                                 blank=True,
                                 null=True,
                                 on_delete=models.CASCADE)
-    state = models.BooleanField(verbose_name='статус получения заказов',
+    state = models.BooleanField(verbose_name='Статус получения заказов',
                                 default=True)
 
     class Meta:
@@ -53,7 +66,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Список категорий'
-        ordering = ('-name',)
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -71,49 +84,46 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = "Список продуктов"
-        ordering = ('-name',)
+        ordering = ('name',)
 
     def __str__(self):
-        return f'{self.category} - {self.name}'
+        return self.name
 
 
 class ProductInfo(models.Model):
     model = models.CharField(max_length=100,
                              verbose_name='Модель')
+    brand = models.ForeignKey(Brand,
+                              verbose_name='Торговая марка',
+                              related_name='product_infos',
+                              blank=True,
+                              on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
     price = models.PositiveIntegerField(verbose_name='Цена')
     price_rrc = models.PositiveIntegerField(verbose_name='Рекомендуемая '
                                                          'розничная цена')
-    product = models.ForeignKey(Product, verbose_name='Продукт',
+    product = models.ForeignKey(Product,
+                                verbose_name='Продукт',
                                 related_name='product_infos',
                                 blank=True,
                                 on_delete=models.CASCADE)
-    shop = models.ForeignKey(Shop, verbose_name='Магазин',
-                             related_name='product_infos', blank=True,
+    shop = models.ForeignKey(Shop,
+                             verbose_name='Магазин',
+                             related_name='product_infos',
+                             blank=True,
                              on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Информация о продукте'
-        verbose_name_plural = 'Информационный список о продуктах'
+        verbose_name_plural = 'Список информации о продуктах'
         constraints = [
             models.UniqueConstraint(fields=['product', 'shop'],
                                     name='unique_product_info'),
         ]
+        ordering = ('product',)
 
     def __str__(self):
-        return f'{self.shop.name} - {self.product.name}'
-
-
-class Brand(models.Model):
-    name = models.CharField('Торговая марка',
-                            max_length=80)
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Торговая марка'
-        verbose_name_plural = 'Торговые марки'
+        return f'{self.product.name} ({self.shop.name})'
 
 
 class Parameter(models.Model):
@@ -121,9 +131,9 @@ class Parameter(models.Model):
                             verbose_name='Название параметра')
 
     class Meta:
-        verbose_name = 'Название параметра'
-        verbose_name_plural = "Список названий параметров"
-        ordering = ('-name',)
+        verbose_name = 'Параметр'
+        verbose_name_plural = "Список параметров"
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -135,7 +145,8 @@ class ProductParameter(models.Model):
                                      blank=True,
                                      related_name='product_parameters',
                                      on_delete=models.CASCADE)
-    parameter = models.ForeignKey(Parameter, verbose_name='Параметр',
+    parameter = models.ForeignKey(Parameter,
+                                  verbose_name='Параметр',
                                   related_name='product_parameters',
                                   blank=True,
                                   on_delete=models.CASCADE)
@@ -143,8 +154,8 @@ class ProductParameter(models.Model):
                              verbose_name='Значение')
 
     class Meta:
-        verbose_name = 'Параметр'
-        verbose_name_plural = 'Список параметров'
+        verbose_name = 'Параметры продуктов '
+        verbose_name_plural = 'Список параметров продуктов'
         constraints = [
             models.UniqueConstraint(fields=['product_info', 'parameter'],
                                     name='unique_product_parameter'),
@@ -187,7 +198,8 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, verbose_name='Заказ',
+    order = models.ForeignKey(Order,
+                              verbose_name='Заказ',
                               related_name='ordered_items',
                               blank=True,
                               on_delete=models.CASCADE)
@@ -197,17 +209,21 @@ class OrderItem(models.Model):
                                  null=True,
                                  on_delete=models.SET_NULL)
     shop = models.ForeignKey(Shop,
-                             verbose_name='магазин',
+                             verbose_name='Магазин',
                              blank=True,
                              null=True,
                              on_delete=models.SET_NULL)
-    product_name = models.ForeignKey(Brand,
-                                     verbose_name='Торговая марка',
-                                     related_name='itemsInOrder',
-                                     on_delete=models.CASCADE,
-                                     blank=True)
-    model = models.CharField('Модель',
-                             max_length=80)
+    brand = models.ForeignKey(Brand,
+                              verbose_name='Торговая марка',
+                              related_name='itemsInOrder',
+                              on_delete=models.CASCADE,
+                              blank=True)
+    product = models.ForeignKey(Product,
+                                verbose_name='Товар',
+                                blank=True,
+                                null=True,
+                                on_delete=models.SET_NULL)
+
     external_id = models.PositiveIntegerField(verbose_name='Внешний ИД',
                                               blank=True)
     quantity = models.PositiveIntegerField(default=1,
@@ -226,23 +242,21 @@ class OrderItem(models.Model):
         verbose_name_plural = "Товары в заказе"
 
     def __str__(self):
-        return str(self.product_name)
+        return str(self.product)
 
     def save(self, *args, **kwargs):
-        product = Product.objects.get(name=self.product_name,
-                                      shop=self.shop,
-                                      model=self.model)
+        product = ProductInfo.objects.get(product=self.product)
 
         price_per_item = product.price
         self.price_per_item = price_per_item
         self.total_price = price_per_item * self.quantity
 
-        super(ItemInOrder, self).save(*args, **kwargs)
+        super(OrderItem, self).save(*args, **kwargs)
 
 
 @receiver(post_save, sender=OrderItem)
 def item_in_order_post_save(sender, instance, created, **kwargs):
-    all_items_in_order = ItemInOrder.objects.filter(order=instance.order)
+    all_items_in_order = OrderItem.objects.filter(order=instance.order)
     order_total_price = 0
     total_items_count_in_order = 0
     for item in all_items_in_order:
@@ -255,7 +269,7 @@ def item_in_order_post_save(sender, instance, created, **kwargs):
 
 @receiver(post_delete, sender=OrderItem)
 def item_in_order_post_delete(sender, instance, created=False, **kwargs):
-    all_items_in_order = ItemInOrder.objects.filter(order=instance.order)
+    all_items_in_order = OrderItem.objects.filter(order=instance.order)
     order_total_price = 0
     total_items_count_in_order = 0
     for item in all_items_in_order:

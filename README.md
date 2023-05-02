@@ -9,9 +9,9 @@ pip install -r requirements.txt
 Вам необходимо будет создать базу и прогнать миграции:
 
 ```bash
-manage.py makemigrations
+python manage.py makemigrations
 python manage.py migrate --run-syncdb 
-manage.py createsuperuser
+python manage.py createsuperuser
 ```
 
 Собрать статические файлы в папку 'static'
@@ -25,13 +25,25 @@ python manage.py runserver <IP-address>:8000
 ```
 
 
-Заполнение таблиц User, Contacts фэйковыми данными:
+Заполнение таблиц фэйковыми данными с помощью [Faker](https://faker.readthedocs.io/en/master/index.html):
 ```bash
 python manage.py shell  
 ```
 ```bash
-from authorization.factory import ContactFactory
+from authorization.factories import ContactFactory
+
+ContactFactory.create_batch(100)
 ```
 ```bash
-x = ContactFactory.create_batch(100)
+from backend.factories import *
+
+BrandFactory.create_batch(30)
+
+ShopFactory.create_batch(10)
+
+CategoryFactory.create_batch(15)
+
+ParameterFactory.create_batch(15)
+
+ProductParameterFactory.create_batch(500)
 ```

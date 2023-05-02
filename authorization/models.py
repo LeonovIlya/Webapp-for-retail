@@ -23,10 +23,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='Email',
                               unique=True)
     company = models.CharField(verbose_name='Компания',
-                               max_length=40,
+                               max_length=80,
                                blank=True)
     position = models.CharField(verbose_name='Должность',
-                                max_length=40,
+                                max_length=80,
                                 blank=True)
     username_validator = UnicodeUsernameValidator()
     username = models.CharField(
@@ -89,7 +89,7 @@ class Contact(models.Model):
     apartment = models.CharField(max_length=15,
                                  verbose_name='Квартира',
                                  blank=True)
-    phone = models.CharField(max_length=40,
+    phone = models.CharField(max_length=50,
                              verbose_name='Телефон',
                              blank=True)
 

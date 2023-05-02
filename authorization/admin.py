@@ -19,8 +19,9 @@ class UserAdmin(UserAdmin):
             'fields': ('email', 'password1', 'password2'),
         }),
     )
-    list_display = ('id', 'email', 'username', 'type', 'is_active',)
-    list_filter = ['id', 'email']
+    list_display = ('id', 'email', 'username', 'type', 'company',
+                    'is_active', 'is_staff', 'is_superuser')
+    list_filter = ['type', 'is_active']
     search_fields = ('email', 'username')
     ordering = ('email',)
 
@@ -30,5 +31,6 @@ admin.site.register(get_user_model(), UserAdmin)
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
-    list_display = ['id', 'user', 'city', 'street', 'phone']
+    list_display = ['id', 'user', 'city', 'street', 'house', 'structure',
+                    'building', 'apartment', 'phone']
     list_filter = ['city', 'street']

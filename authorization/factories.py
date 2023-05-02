@@ -13,8 +13,6 @@ class UserFactory(factory.django.DjangoModelFactory):
     position = factory.Faker('job')
     username = factory.Faker('user_name')
     password = factory.Faker('password')
-    shop = factory.RelatedFactory(ShopFactory,
-                                  factory_related_name='user')
 
 
 class ContactFactory(factory.django.DjangoModelFactory):
@@ -23,6 +21,6 @@ class ContactFactory(factory.django.DjangoModelFactory):
 
     city = factory.Faker('city')
     street = factory.Faker('street_name')
-    building = factory.Faker('building_number')
+    house = factory.Faker('building_number')
     phone = factory.Faker('phone_number')
     user = factory.SubFactory(UserFactory)

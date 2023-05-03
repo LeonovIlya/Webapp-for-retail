@@ -1,19 +1,22 @@
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path, include
 from django_rest_passwordreset.views import reset_password_request_token, \
     reset_password_confirm
 from rest_framework import routers
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import CategoryView, ShopView, ProductInfoView, BasketView, \
+from .views import CategoryView, ShopView, ProductsInfoView, BasketView, \
     OrderView, LoginAccount, ContactView, AccountDetails, ConfirmAccount, \
-    RegisterAccount, PartnerOrders, PartnerState, PartnerUpdate
+    RegisterAccount, PartnerOrders, PartnerState, PartnerUpdate, IndexView, \
+    ProductInfoView
 
 app_name = 'backend'
 
 router = routers.SimpleRouter()
 router.register(r'shops', ShopView)
 router.register(r'categories', CategoryView)
-router.register(r'products', ProductInfoView,
+router.register(r'products', ProductsInfoView,
                 basename='products')
 
 urlpatterns = [
@@ -41,7 +44,11 @@ urlpatterns = [
          name='basket'),
     path('order', OrderView.as_view(),
          name='order'),
-    path('', include(router.urls)),
+    path('', IndexView.as_view(),
+         name='index'),
+    path('product/<int:product_id>', ProductInfoView.as_view(),
+         name='product_info'),
 ]
 
 urlpatterns += router.urls
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

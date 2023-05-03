@@ -5,7 +5,21 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+if DEBUG:
+    STATICFILES_DIRS = [
+        os.path.join(BASE_DIR, 'static')
+    ]
+else:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATIC_URL = '/static/'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
+STORAGE = os.path.join(BASE_DIR, 'storage')
+
 SECRET_KEY = 'my_super_secret_key_1234567890987654321_!@#$%^&*()(*&^%$#@!'
 
 INSTALLED_APPS = [
@@ -95,10 +109,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-STATIC_URL = '/static/'
-
-STORAGE = os.path.join(BASE_DIR, 'storage')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 

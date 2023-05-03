@@ -10,6 +10,7 @@ from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework.authtoken.models import Token
 
 from yaml import load as load_yaml, Loader
@@ -24,7 +25,7 @@ from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
 from authorization.models import Contact, ConfirmEmailToken
 from .serializers import CategorySerializer, ShopSerializer, \
     ProductInfoSerializer, OrderSerializer, \
-    OrderItemSerializer, UserSerializer, ContactSerializer
+    OrderItemSerializer, UserSerializer, ContactSerializer, ProductSerializer
 
 
 class RegisterAccount(APIView):
@@ -146,7 +147,7 @@ class ShopView(viewsets.ModelViewSet):
     ordering = ('name',)
 
 
-class ProductInfoView(viewsets.ReadOnlyModelViewSet):
+class ProductsInfoView(viewsets.ReadOnlyModelViewSet):
     throttle_scope = 'anon'
     serializer_class = ProductInfoSerializer
     ordering = ('product',)
@@ -464,3 +465,39 @@ class PartnerUpdate(APIView):
         return Response({'Status': False,
                          'Errors': 'Не указаны все необходимые аргументы'},
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class IndexView(APIView):
+
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+
+    def get(self, request, *args, **kwargs):
+        product_queryset = ProductInfo.objects.all()
+
+        if request.accepted_renderer.format == 'html':
+            data = {
+                'products_info': product_queryset,
+            }
+            return Response(data, template_name='store.html')
+
+        serializer = ProductInfoSerializer(instance=product_queryset)
+        data = serializer.data
+        return Response(data)
+
+
+class ProductInfoView(APIView):
+
+    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+
+    def get(self, request, product_id, *args, **kwargs):
+        product_info_queryset = ProductInfo.objects.get(product_id=product_id)
+
+        if request.accepted_renderer.format == 'html':
+            data = {
+                'product_info': product_info_queryset,
+            }
+            return Response(data, template_name='product.html')
+
+        serializer = ProductInfoSerializer(instance=product_info_queryset)
+        data = serializer.data
+        return Response(data)

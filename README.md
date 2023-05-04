@@ -47,3 +47,8 @@ ParameterFactory.create_batch(15)
 
 ProductParameterFactory.create_batch(500)
 ```
+Генерация изображения к товару по его названию. Через [OpenAI API](https://platform.openai.com/docs/guides/images/image-generation-beta).
+Ограничение 5 запросов/минуту. 
+```bash
+generate_products_pics()
+```

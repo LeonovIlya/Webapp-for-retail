@@ -2,3 +2,4 @@
 /venv/
 /authorization/migrations/
 /backend/migrations/
+/.env

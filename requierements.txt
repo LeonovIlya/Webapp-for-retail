@@ -9,3 +9,6 @@ djoser
 psycopg2-binary
 django-grappelli
 factory-boy
+python-dotenv
+openai
+pillow

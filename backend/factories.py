@@ -1,9 +1,24 @@
+import os
 import factory
 import factory.fuzzy
+import openai
 import random
+import requests
+import shutil
+import time
 
+from io import BytesIO
+from PIL import Image
+
+import config
 from backend.models import Brand, Category, Parameter, Product, ProductInfo, \
     ProductParameter, Shop
+
+from shop.settings import BASE_DIR, MEDIA_ROOT
+from backend.test import generate_pic
+
+
+openai.api_key = config.AI_API_TOKEN
 
 
 class BrandFactory(factory.django.DjangoModelFactory):
@@ -78,3 +93,32 @@ class ProductParameterFactory(factory.django.DjangoModelFactory):
     product_info = factory.SubFactory(ProductInfoFactory)
     parameter = factory.Iterator(ParameterFactory)
     value = factory.Faker('ean8')
+
+
+def generate_products_pics():
+    product_names = list(Product.objects.all().values_list('name',
+                                                           flat=True))
+    for name in product_names:
+        try:
+            time.sleep(5)
+            response = openai.Image.create(
+                prompt=name,
+                n=1,
+                size="512x512"
+            )
+            pic_url = (response['data'][0]['url'])
+            res = requests.get(pic_url, stream=True)
+            if res.status_code == 200:
+                with open(f'{MEDIA_ROOT}/products/{name}.png', 'wb') as f:
+                    shutil.copyfileobj(res.raw, f)
+                print('Image sucessfully Downloaded: ', name)
+                Product.objects.filter(name=name).update(
+                    image=f'products/{name}.png')
+            else:
+                print('Image Couldn\'t be retrieved')
+
+        except openai.error.OpenAIError as e:
+            print(e.http_status)
+            print(e.error)
+
+

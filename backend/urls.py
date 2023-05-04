@@ -1,5 +1,3 @@
-from django.conf import settings
-from django.conf.urls.static import static
 from django.urls import path, include
 from django_rest_passwordreset.views import reset_password_request_token, \
     reset_password_confirm
@@ -51,4 +49,3 @@ urlpatterns = [
 ]
 
 urlpatterns += router.urls
-urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

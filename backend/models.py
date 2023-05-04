@@ -80,6 +80,9 @@ class Product(models.Model):
                                  related_name='products',
                                  blank=True,
                                  on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='products/',
+                              null=True,
+                              blank=True)
 
     class Meta:
         verbose_name = 'Продукт'
@@ -112,7 +115,6 @@ class ProductInfo(models.Model):
                              related_name='product_infos',
                              blank=True,
                              on_delete=models.CASCADE)
-
     class Meta:
         verbose_name = 'Информация о продукте'
         verbose_name_plural = 'Список информации о продуктах'

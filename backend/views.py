@@ -18,10 +18,11 @@ from ujson import loads as load_json
 from distutils.util import strtobool
 from requests import get
 
+from .filters import ProductPriceFilter
 from .tasks import import_shop_data
 from .signals import new_user_registered
 from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
-    ProductParameter, Parameter
+    ProductParameter, Parameter, Brand
 from authorization.models import Contact, ConfirmEmailToken
 from .serializers import CategorySerializer, ShopSerializer, \
     ProductInfoSerializer, OrderSerializer, \
@@ -472,11 +473,17 @@ class IndexView(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
 
     def get(self, request, *args, **kwargs):
-        product_queryset = ProductInfo.objects.all()
+        price_filter = ProductPriceFilter(request.GET)
+        products_queryset = ProductInfo.objects.all()
+        categories_queryset = Category.objects.all()
+        brands_queryset = Brand.objects.all()
 
         if request.accepted_renderer.format == 'html':
             data = {
-                'products_info': product_queryset,
+                'products_info': products_queryset,
+                'categories': categories_queryset,
+                'brands': brands_queryset,
+                'price_filter': price_filter
             }
             return Response(data, template_name='store.html')
 

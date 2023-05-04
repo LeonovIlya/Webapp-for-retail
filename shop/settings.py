@@ -1,10 +1,14 @@
 import os
 
+import config
+
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+
+STATIC_URL = '/static/'
 
 if DEBUG:
     STATICFILES_DIRS = [
@@ -13,10 +17,9 @@ if DEBUG:
 else:
     STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-STATIC_URL = '/static/'
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 STORAGE = os.path.join(BASE_DIR, 'storage')
 
@@ -35,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'django_rest_passwordreset',
     'djoser',
+    'django_filters',
 
     'backend',
     'authorization',
@@ -73,11 +77,11 @@ WSGI_APPLICATION = 'shop.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'django-retail',
-        'USER': 'postgres',
-        'PASSWORD': 'postgres',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'NAME': config.DB_NAME,
+        'USER': config.DB_USER,
+        'PASSWORD': config.DB_PASSWORD,
+        'HOST': config.DB_HOST,
+        'PORT': config.DB_PORT,
     }
 }
 

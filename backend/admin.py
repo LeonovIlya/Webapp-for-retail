@@ -1,13 +1,12 @@
 from django.contrib import admin
 
-from .models import Shop, Category, Product, ProductInfo, Parameter, \
-    ProductParameter, Order, OrderItem, Brand
+from .models import Shop, Category, Product, ProductInfo, Parameter, Order, \
+    OrderItem, Brand
 
 # admin.site.register(Shop)
 # admin.site.register(Category)
 # admin.site.register(Product)
 # admin.site.register(Parameter)
-# admin.site.register(ProductParameter)
 # admin.site.register(Order)
 # admin.site.register(OrderItem)
 
@@ -39,12 +38,6 @@ class ShopAdmin(admin.ModelAdmin):
 @admin.register(Parameter)
 class ShopAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
-
-
-@admin.register(ProductParameter)
-class ShopAdmin(admin.ModelAdmin):
-    list_display = ['product_info', 'parameter', 'value']
-    list_filter = ['product_info', 'parameter']
 
 
 @admin.register(Order)

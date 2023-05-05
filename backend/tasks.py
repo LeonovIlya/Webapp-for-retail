@@ -2,8 +2,7 @@ import yaml
 from shop.settings import EMAIL_HOST_USER
 from django.core.mail.message import EmailMultiAlternatives
 from shop.celery import app
-from .models import Shop, Category, Product, Parameter, ProductParameter, \
-    ProductInfo
+from .models import Shop, Category, Product, Parameter, ProductInfo
 
 
 @app.task()

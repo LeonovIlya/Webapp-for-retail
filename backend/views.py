@@ -22,7 +22,7 @@ from .filters import ProductPriceFilter
 from .tasks import import_shop_data
 from .signals import new_user_registered
 from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
-    ProductParameter, Parameter, Brand
+    Parameter, Brand
 from authorization.models import Contact, ConfirmEmailToken
 from .serializers import CategorySerializer, ShopSerializer, \
     ProductInfoSerializer, OrderSerializer, \

@@ -72,6 +72,19 @@ class Category(models.Model):
         return self.name
 
 
+class Parameter(models.Model):
+    name = models.CharField(max_length=50,
+                            verbose_name='Название параметра')
+
+    class Meta:
+        verbose_name = 'Параметр'
+        verbose_name_plural = "Список параметров"
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
     name = models.CharField(max_length=100,
                             verbose_name='Название продукта')
@@ -83,6 +96,11 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/',
                               null=True,
                               blank=True)
+    parameters = models.ManyToManyField(Parameter,
+                                        through="ProductsParameters",
+                                        verbose_name='Параметр',
+                                        related_name='parameters',
+                                        blank=True)
 
     class Meta:
         verbose_name = 'Продукт'
@@ -91,6 +109,15 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class ProductsParameters(models.Model):
+    product = models.ForeignKey(Product,
+                                on_delete=models.CASCADE)
+    parameter = models.ForeignKey(Parameter,
+                                  on_delete=models.CASCADE)
+    value = models.CharField(max_length=100,
+                             verbose_name='Значение')
 
 
 class ProductInfo(models.Model):
@@ -115,6 +142,7 @@ class ProductInfo(models.Model):
                              related_name='product_infos',
                              blank=True,
                              on_delete=models.CASCADE)
+
     class Meta:
         verbose_name = 'Информация о продукте'
         verbose_name_plural = 'Список информации о продуктах'
@@ -126,45 +154,6 @@ class ProductInfo(models.Model):
 
     def __str__(self):
         return f'{self.product.name} ({self.shop.name})'
-
-
-class Parameter(models.Model):
-    name = models.CharField(max_length=50,
-                            verbose_name='Название параметра')
-
-    class Meta:
-        verbose_name = 'Параметр'
-        verbose_name_plural = "Список параметров"
-        ordering = ('name',)
-
-    def __str__(self):
-        return self.name
-
-
-class ProductParameter(models.Model):
-    product_info = models.ForeignKey(ProductInfo,
-                                     verbose_name='Информация о продукте',
-                                     blank=True,
-                                     related_name='product_parameters',
-                                     on_delete=models.CASCADE)
-    parameter = models.ForeignKey(Parameter,
-                                  verbose_name='Параметр',
-                                  related_name='product_parameters',
-                                  blank=True,
-                                  on_delete=models.CASCADE)
-    value = models.CharField(max_length=100,
-                             verbose_name='Значение')
-
-    class Meta:
-        verbose_name = 'Параметры продуктов '
-        verbose_name_plural = 'Список параметров продуктов'
-        constraints = [
-            models.UniqueConstraint(fields=['product_info', 'parameter'],
-                                    name='unique_product_parameter'),
-        ]
-
-    def __str__(self):
-        return f'{self.product_info.model} - {self.parameter.name}'
 
 
 class Order(models.Model):

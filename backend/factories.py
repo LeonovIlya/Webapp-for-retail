@@ -7,12 +7,13 @@ import requests
 import shutil
 import time
 
+from faker import Faker
 from io import BytesIO
 from PIL import Image
 
 import config
-from backend.models import Brand, Category, Parameter, Product, ProductInfo, \
-    ProductParameter, Shop
+from backend.models import Brand, Category, Parameter, Product, ProductInfo,\
+    ProductsParameters, Shop
 
 from shop.settings import BASE_DIR, MEDIA_ROOT
 from backend.test import generate_pic
@@ -32,7 +33,7 @@ class CategoryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Category
 
-    name = factory.Faker('language_name')
+    name = factory.Faker('cryptocurrency_name')
 
     @factory.post_generation
     def shops(self, create, *kwargs):
@@ -58,12 +59,27 @@ class ShopFactory(factory.django.DjangoModelFactory):
                               type='shop')
 
 
+class ParameterFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Parameter
+
+    name = factory.Faker('cryptocurrency_code')
+
+
 class ProductFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Product
 
     name = factory.Faker('catch_phrase')
     category = factory.fuzzy.FuzzyChoice(Category.objects.all())
+
+    @factory.post_generation
+    def parameters(self, create, *kwargs):
+        if create:
+            par_list = tuple(Parameter.objects.all().values_list('id',
+                                                                 flat=True))
+            for par in par_list:
+                self.parameters.add(par)
 
 
 class ProductInfoFactory(factory.django.DjangoModelFactory):
@@ -79,20 +95,19 @@ class ProductInfoFactory(factory.django.DjangoModelFactory):
     shop = factory.fuzzy.FuzzyChoice(Shop.objects.all())
 
 
-class ParameterFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = Parameter
-
-    name = factory.Faker('uri_page')
-
-
-class ProductParameterFactory(factory.django.DjangoModelFactory):
-    class Meta:
-        model = ProductParameter
-
-    product_info = factory.SubFactory(ProductInfoFactory)
-    parameter = factory.Iterator(ParameterFactory)
-    value = factory.Faker('ean8')
+# class ProductsParametersFactory(factory.django.DjangoModelFactory):
+#     class Meta:
+#         model = ProductsParameters
+#
+#     product = factory.SubFactory(ProductFactory)
+#     parameter = factory.SubFactory(ParameterFactory)
+#     value = factory.Faker('pyint')
+#
+#
+# class ProductWithParametersFactory(ProductFactory):
+#     reports = factory.RelatedFactory(
+#         ProductsParametersFactory,
+#         factory_related_name='product')
 
 
 def generate_products_pics():
@@ -111,7 +126,7 @@ def generate_products_pics():
             if res.status_code == 200:
                 with open(f'{MEDIA_ROOT}/products/{name}.png', 'wb') as f:
                     shutil.copyfileobj(res.raw, f)
-                print('Image sucessfully Downloaded: ', name)
+                print('Image sucessfully downloaded: ', name)
                 Product.objects.filter(name=name).update(
                     image=f'products/{name}.png')
             else:
@@ -120,5 +135,25 @@ def generate_products_pics():
         except openai.error.OpenAIError as e:
             print(e.http_status)
             print(e.error)
+
+
+def set_param_values():
+    id_list = list(ProductsParameters.objects.all().values_list('id',
+                                                                flat=True))
+    for _id in id_list:
+        fake = Faker()
+        ProductsParameters.objects.filter(id=_id).update(value=fake.pyint())
+
+def desc():
+    response = openai.Completion.create(
+        model="text-davinci-003",
+        prompt="Write a creative ad for the following product to run on Facebook aimed at parents:\n\nProduct: Learning Room is a virtual environment to help students from kindergarten to high school excel in school.",
+        temperature=0.5,
+        max_tokens=100,
+        top_p=1.0,
+        frequency_penalty=0.0,
+        presence_penalty=0.0
+    )
+
 
 

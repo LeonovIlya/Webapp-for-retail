@@ -32,20 +32,25 @@ python manage.py shell
 ```bash
 from authorization.factories import ContactFactory
 
-ContactFactory.create_batch(100)
+ContactFactory.create_batch(25)
 ```
 ```bash
 from backend.factories import *
 
-BrandFactory.create_batch(30)
+BrandFactory.create_batch(15)
 
-ShopFactory.create_batch(10)
+ShopFactory.create_batch(30)
 
-CategoryFactory.create_batch(15)
+CategoryFactory.create_batch(10)
 
-ParameterFactory.create_batch(15)
+ParameterFactory.create_batch(10)
 
-ProductParameterFactory.create_batch(500)
+ProductInfoFactory.create_batch(100)
+```
+
+Заполнение значений параметров в таблице M2M "productsparameters" 
+```bash
+set_param_values()
 ```
 Генерация изображения к товару по его названию. Через [OpenAI API](https://platform.openai.com/docs/guides/images/image-generation-beta).
 Ограничение 5 запросов/минуту. 

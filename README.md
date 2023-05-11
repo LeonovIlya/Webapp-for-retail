@@ -52,8 +52,10 @@ ProductInfoFactory.create_batch(100)
 ```bash
 set_param_values()
 ```
-Генерация изображения к товару по его названию. Через [OpenAI API](https://platform.openai.com/docs/guides/images/image-generation-beta).
+Генерация изображения и описания к товару по его названию. Через [OpenAI API](https://platform.openai.com/docs/guides/images/image-generation-beta).
 Ограничение 5 запросов/минуту. 
 ```bash
 generate_products_pics()
+
+generate_products_descriptions()
 ```

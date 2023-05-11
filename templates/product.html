@@ -98,9 +98,8 @@
 								<br>
 								<b>Price RRC: </b> <h3 class="product-price"> {{ product_info.price_rrc }} ₽</h3>
 								<br>
-								<b>Quantity: </b> <h4 class="product-price"> {{ product_info.quantity }}</h4>
+								<b>In stock: </b> <h4 class="product-price"> {{ product_info.quantity }}</h4>
 							</div>
-							<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
 
 							<div class="add-to-cart">
 								<div class="qty-label">
@@ -124,7 +123,8 @@
 							<ul class="tab-nav">
 								<li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
 								<li><a data-toggle="tab" href="#tab2">Details</a></li>
-								<li><a data-toggle="tab" href="#tab3">Reviews</a></li>
+								<li><a data-toggle="tab" href="#tab3">Parameters</a></li>
+								<li><a data-toggle="tab" href="#tab4">Reviews</a></li>
 							</ul>
 							<!-- /product tab nav -->
 
@@ -134,7 +134,7 @@
 								<div id="tab1" class="tab-pane fade in active">
 									<div class="row">
 										<div class="col-md-12">
-											<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+											<p>{{ product_info.product.description }}</p>
 										</div>
 									</div>
 								</div>
@@ -142,21 +142,34 @@
 
 								<!-- tab2  -->
 								<div id="tab2" class="tab-pane fade in">
-									<div class="row">
-										<div class="col-md-12">
-											<p>Id: {{ product_info.product_id }} </p>
-											<p>Brand: {{ product_info.brand.name }} </p>
-											<p>Product name: {{ product_info.product.name }} </p>
-											<p>Category: {{ product_info.product.category }} </p>
-											<p>Model: {{ product_info.model }} </p>
-											<p>Shop: {{ product_info.shop }} </p>
-										</div>
+									<div class="w-auto p-3">
+										<ul class="list-group">
+											<li class="list-group-item"><b>Id:</b> {{ product_info.product_id }}</li>
+											<li class="list-group-item"><b>Brand:</b> {{ product_info.brand.name }}</li>
+											<li class="list-group-item"><b>Product name:</b> {{ product_info.product.name }}</li>
+											<li class="list-group-item"><b>Category:</b> {{ product_info.product.category }}</li>
+											<li class="list-group-item"><b>Model:</b> {{ product_info.model }}</li>
+											<li class="list-group-item"><b>Shop:</b> {{ product_info.shop }}</li>
+										</ul>
 									</div>
 								</div>
 								<!-- /tab2  -->
 
 								<!-- tab3  -->
 								<div id="tab3" class="tab-pane fade in">
+									<div class="w-auto p-3">
+										<ul class="list-group">
+											{% for p in parameters%}
+											<li class="list-group-item"><b>{{ p.parameter.name }}:</b> {{ p.value }}</li>
+											{% endfor %}
+
+										</ul>
+									</div>
+								</div>
+								<!-- /tab3  -->
+
+								<!-- tab4  -->
+								<div id="tab4" class="tab-pane fade in">
 									<div class="row">
 										<!-- Rating -->
 										<div class="col-md-3">
@@ -277,28 +290,31 @@
 										<!-- Review Form -->
 										<div class="col-md-3">
 											<div id="review-form">
-												<form class="review-form">
-													<input class="input" type="text" placeholder="Your Name">
-													<input class="input" type="email" placeholder="Your Email">
-													<textarea class="input" placeholder="Your Review"></textarea>
-													<div class="input-rating">
-														<span>Your Rating: </span>
-														<div class="stars">
-															<input id="star5" name="rating" value="5" type="radio"><label for="star5"></label>
-															<input id="star4" name="rating" value="4" type="radio"><label for="star4"></label>
-															<input id="star3" name="rating" value="3" type="radio"><label for="star3"></label>
-															<input id="star2" name="rating" value="2" type="radio"><label for="star2"></label>
-															<input id="star1" name="rating" value="1" type="radio"><label for="star1"></label>
-														</div>
+												{% if user.is_authenticated %}
+												<form class="review-form" method="POST">
+													{% csrf_token %}
+													<input type="hidden" id="product" name='product' value="{{ product_info.product_id }}">
+													<div class="form-group">
+													<input type="hidden" id="user" name="user" class="form-control" value="{{ user.id }}" readonly>
 													</div>
+													<div class="form-group">
+													<textarea name="text" id="text" class="form-control"></textarea>
+													</div>
+														<div class="form-group">
+													<textarea name="rating" id="rating" class="form-control"></textarea>
+													</div>
+
 													<button class="primary-btn">Submit</button>
+													{% else %}
+													<h5 class="name">You Must Be Logged In To Comment!</h5>
+													{% endif %}
 												</form>
 											</div>
 										</div>
 										<!-- /Review Form -->
 									</div>
 								</div>
-								<!-- /tab3  -->
+								<!-- /tab4  -->
 							</div>
 							<!-- /product tab content  -->
 						</div>

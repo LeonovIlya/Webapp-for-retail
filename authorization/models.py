@@ -5,8 +5,9 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django_rest_passwordreset.tokens import get_token_generator
-from .managers import UserManager
 
+from .managers import UserManager
+from backend.models import Product
 
 USER_TYPE_CHOICES = (
     ('shop', 'Магазин'),
@@ -14,9 +15,15 @@ USER_TYPE_CHOICES = (
     ('manager', 'Менеджер'),
     ('admin', 'Администратор'))
 
+RATING_TYPE_CHOICES = (
+    (1, 1),
+    (2, 2),
+    (3, 3),
+    (4, 4),
+    (5, 5))
+
 
 class User(AbstractBaseUser, PermissionsMixin):
-
     REQUIRED_FIELDS = []
     objects = UserManager()
     USERNAME_FIELD = 'email'
@@ -100,6 +107,33 @@ class Contact(models.Model):
     def __str__(self):
         return f'{self.city}, ул.{self.street}, дом {self.house}' \
                f' ({self.phone})'
+
+
+class Comment(models.Model):
+    user = models.ForeignKey(User,
+                             verbose_name='Пользователь',
+                             related_name='comments',
+                             blank=True,
+                             on_delete=models.CASCADE)
+    text = models.TextField(verbose_name='Текст комментария',
+                            blank=True)
+    product = models.ForeignKey(Product,
+                                verbose_name='Товар',
+                                related_name='comments',
+                                blank=True,
+                                null=True,
+                                on_delete=models.CASCADE)
+    rating = models.PositiveIntegerField(max_length=1,
+                                         choices=RATING_TYPE_CHOICES)
+    posted = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Список комментариев'
+        ordering = ['posted']
+
+    def __str__(self):
+        return '{} by {}. {}'.format(self.text, self.user, self.posted)
 
 
 class ConfirmEmailToken(models.Model):

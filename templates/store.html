@@ -2,27 +2,6 @@
 
 {% block content %}
 
-		<!-- BREADCRUMB -->
-		<div id="breadcrumb" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<ul class="breadcrumb-tree">
-							<li><a href="#">Home</a></li>
-							<li><a href="#">All Categories</a></li>
-							<li><a href="#">Accessories</a></li>
-							<li class="active">Headphones (227,490 Results)</li>
-						</ul>
-					</div>
-				</div>
-				<!-- /row -->
-			</div>
-			<!-- /container -->
-		</div>
-		<!-- /BREADCRUMB -->
-
 		<!-- SECTION -->
 		<div class="section">
 			<!-- container -->
@@ -37,8 +16,8 @@
 							<div class="checkbox-filter">
 								{% for category in categories %}
 								<div class="input-checkbox">
-									<input type="checkbox" id="category-1">
-									<label for="category-1">
+									<input type="checkbox" id="{{ category.name }}">
+									<label for="{{ category.name }}">
 										<span></span>
 										{{ category.name }}
 										<small></small>
@@ -79,8 +58,8 @@
 							<div class="checkbox-filter">
 								{% for brand in brands %}
 								<div class="input-checkbox">
-									<input type="checkbox" id="brand-1">
-									<label for="brand-1">
+									<input type="checkbox" id="{{ brand.name }}">
+									<label for="{{ brand.name }}">
 										<span></span>
 										{{ brand.name }}
 										<small>(578)</small>
@@ -103,6 +82,7 @@
 										<option value="0">Price</option>
 										<option value="1">Popular</option>
 										<option value="2">Position</option>
+										<option value="3">Name</option>
 									</select>
 								</label>
 

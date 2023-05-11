@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth import get_user_model
-from .models import Contact
+from .models import Comment, Contact, User
 
 
+@admin.register(User)
 class UserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
@@ -26,11 +27,15 @@ class UserAdmin(UserAdmin):
     ordering = ('email',)
 
 
-admin.site.register(get_user_model(), UserAdmin)
-
-
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     list_display = ['id', 'user', 'city', 'street', 'house', 'structure',
                     'building', 'apartment', 'phone']
     list_filter = ['city', 'street']
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'text', 'product', 'rating', 'posted')
+    list_filter = ('user', 'product' )
+    search_fields = ('user', 'product')

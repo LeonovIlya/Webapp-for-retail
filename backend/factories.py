@@ -115,23 +115,55 @@ def generate_products_pics():
                                                            flat=True))
     for name in product_names:
         try:
-            time.sleep(5)
-            response = openai.Image.create(
-                prompt=name,
-                n=1,
-                size="512x512"
-            )
-            pic_url = (response['data'][0]['url'])
-            res = requests.get(pic_url, stream=True)
-            if res.status_code == 200:
-                with open(f'{MEDIA_ROOT}/products/{name}.png', 'wb') as f:
-                    shutil.copyfileobj(res.raw, f)
-                print('Image sucessfully downloaded: ', name)
-                Product.objects.filter(name=name).update(
-                    image=f'products/{name}.png')
+            if Product.objects.values('image').filter(name=name)[0]['image']:
+                print('Link to image already exist: ', name)
             else:
-                print('Image Couldn\'t be retrieved')
+                time.sleep(5)
+                response = openai.Image.create(
+                    prompt=name,
+                    n=1,
+                    size="512x512"
+                )
+                pic_url = (response['data'][0]['url'])
+                res = requests.get(pic_url, stream=True)
+                if res.status_code == 200:
+                    with open(f'{MEDIA_ROOT}/products/{name}.png', 'wb') as f:
+                        shutil.copyfileobj(res.raw, f)
+                    Product.objects.filter(name=name).update(
+                        image=f'products/{name}.png')
+                    print('Image successfully downloaded: ', name)
+                else:
+                    print('Image Couldn\'t be retrieved')
 
+        except openai.error.OpenAIError as e:
+            print(e.http_status)
+            print(e.error)
+
+
+def generate_products_descriptions():
+    product_names = list(Product.objects.all().values_list('name',
+                                                           flat=True))
+    for name in product_names:
+        try:
+            if Product.objects.values('description').filter(
+                    name=name)[0]['description']:
+                print('Description already exist: ', name)
+            else:
+                time.sleep(5)
+                res = openai.Completion.create(
+                    model='text-davinci-003',
+                    prompt=f'Write a creative ad for the following product '
+                           f'with name {name}',
+                    temperature=0.5,
+                    max_tokens=100,
+                    top_p=1.0,
+                    frequency_penalty=0.0,
+                    presence_penalty=0.0
+                )
+
+                Product.objects.filter(name=name).update(
+                    description=res['choices'][0]['text'])
+                print('Description successfully added: ', name)
         except openai.error.OpenAIError as e:
             print(e.http_status)
             print(e.error)
@@ -143,17 +175,3 @@ def set_param_values():
     for _id in id_list:
         fake = Faker()
         ProductsParameters.objects.filter(id=_id).update(value=fake.pyint())
-
-def desc():
-    response = openai.Completion.create(
-        model="text-davinci-003",
-        prompt="Write a creative ad for the following product to run on Facebook aimed at parents:\n\nProduct: Learning Room is a virtual environment to help students from kindergarten to high school excel in school.",
-        temperature=0.5,
-        max_tokens=100,
-        top_p=1.0,
-        frequency_penalty=0.0,
-        presence_penalty=0.0
-    )
-
-
-

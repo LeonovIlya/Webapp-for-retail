@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 
 from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
@@ -23,10 +24,12 @@ from .tasks import import_shop_data
 from .signals import new_user_registered
 from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
     Parameter, Brand
+from authorization.forms import CommentForm
 from authorization.models import Contact, ConfirmEmailToken
+from authorization.serializers import CommentSerializer
 from .serializers import CategorySerializer, ShopSerializer, \
-    ProductInfoSerializer, OrderSerializer, \
-    OrderItemSerializer, UserSerializer, ContactSerializer, ProductSerializer
+    ProductInfoSerializer, OrderSerializer, OrderItemSerializer, \
+    UserSerializer, ContactSerializer, ProductSerializer
 
 
 class RegisterAccount(APIView):
@@ -469,7 +472,6 @@ class PartnerUpdate(APIView):
 
 
 class IndexView(APIView):
-
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
 
     def get(self, request, *args, **kwargs):
@@ -477,6 +479,7 @@ class IndexView(APIView):
         products_queryset = ProductInfo.objects.all()
         categories_queryset = Category.objects.all()
         brands_queryset = Brand.objects.all()
+        paginate_by = 20
 
         if request.accepted_renderer.format == 'html':
             data = {
@@ -493,18 +496,41 @@ class IndexView(APIView):
 
 
 class ProductInfoView(APIView):
-
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = 'product.html'
 
     def get(self, request, product_id, *args, **kwargs):
-        product_info_queryset = ProductInfo.objects.get(product_id=product_id)
+        product_info = get_object_or_404(ProductInfo,
+                                         product_id=product_id)
+        serializer = ProductInfoSerializer(instance=product_info)
+        parameters = Product.parameters.through.objects.filter(
+            product_id=product_id)
 
         if request.accepted_renderer.format == 'html':
             data = {
-                'product_info': product_info_queryset,
+                'serializer': serializer,
+                'product_info': product_info,
+                'parameters': parameters,
             }
-            return Response(data, template_name='product.html')
+            return Response(data)
 
-        serializer = ProductInfoSerializer(instance=product_info_queryset)
         data = serializer.data
         return Response(data)
+
+    def add_comment(self, product_id, request, *args, **kwargs):
+        # if not request.user.is_authenticated:
+        #     return Response({'Status': False, 'Error': 'Log in required'},
+        #                     status=status.HTTP_403_FORBIDDEN)
+        # if request.user.type != 'buyer':
+        #     return Response({'Status': False, 'Error': 'Only for buyers!'},
+        #                     status=status.HTTP_403_FORBIDDEN)
+        if request.method == 'POST':
+            form = CommentForm(request.POST)
+            if form.is_valid():
+                form.save()
+                return redirect('Items-list')
+
+
+
+
+

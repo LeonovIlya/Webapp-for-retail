@@ -1,6 +1,6 @@
 from djoser.serializers import UserCreateSerializer, UserSerializer
 from rest_framework import serializers
-from .models import User, Contact
+from .models import User, Contact, Comment
 
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -39,3 +39,11 @@ class ContactSerializer(serializers.ModelSerializer):
         model = Contact
         fields = ['id', 'city', 'street', 'house', 'structure', "building",
                   "apartment", "phone", "user"]
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    user = serializers.HiddenField(default=serializers.CurrentUserDefault())
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'text', 'product', 'rating']

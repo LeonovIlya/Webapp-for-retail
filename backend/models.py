@@ -3,7 +3,6 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
-from authorization.models import User, Contact
 
 storage = FileSystemStorage(location=settings.STORAGE)
 
@@ -37,7 +36,7 @@ class Shop(models.Model):
     url = models.URLField(verbose_name='Ссылка',
                           null=True,
                           blank=True)
-    user = models.OneToOneField(User,
+    user = models.OneToOneField(settings.AUTH_USER_MODEL,
                                 verbose_name='Пользователь',
                                 related_name='shop',
                                 blank=True,
@@ -87,7 +86,7 @@ class Parameter(models.Model):
 
 class Product(models.Model):
     name = models.CharField(max_length=100,
-                            verbose_name='Название продукта')
+                            verbose_name='Название товара')
     category = models.ForeignKey(Category,
                                  verbose_name='Категория',
                                  related_name='products',
@@ -101,10 +100,12 @@ class Product(models.Model):
                                         verbose_name='Параметр',
                                         related_name='parameters',
                                         blank=True)
+    description = models.TextField(verbose_name='Описание',
+                                   blank=True)
 
     class Meta:
-        verbose_name = 'Продукт'
-        verbose_name_plural = "Список продуктов"
+        verbose_name = 'Товар'
+        verbose_name_plural = "Список товаров"
         ordering = ('name',)
 
     def __str__(self):
@@ -133,7 +134,7 @@ class ProductInfo(models.Model):
     price_rrc = models.PositiveIntegerField(verbose_name='Рекомендуемая '
                                                          'розничная цена')
     product = models.ForeignKey(Product,
-                                verbose_name='Продукт',
+                                verbose_name='Товар',
                                 related_name='product_infos',
                                 blank=True,
                                 on_delete=models.CASCADE)
@@ -144,8 +145,8 @@ class ProductInfo(models.Model):
                              on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Информация о продукте'
-        verbose_name_plural = 'Список информации о продуктах'
+        verbose_name = 'Информация о товаре'
+        verbose_name_plural = 'Список информации о товарах'
         constraints = [
             models.UniqueConstraint(fields=['product', 'shop'],
                                     name='unique_product_info'),

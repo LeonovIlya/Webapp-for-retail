@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login, logout
 from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -58,3 +59,29 @@ class ContactView(APIView):
         else:
             raise serializer.errors
         return Response(serializer.data)
+
+
+class LoginView(APIView):
+    template_name = 'login.html'
+
+    def get(self, request, *args, **kwargs):
+        return Response()
+
+    def post(self, request,  *args, **kwargs):
+        email = request.data['email']
+        password = request.data['password']
+        user = authenticate(email=email, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('backend:index')
+        else:
+            return redirect('authorization:login',
+                            {'error_message': 'Incorrect '
+                                              'username '
+                                              'and/or '
+                                              'password.'})
+
+
+def logout_request(request):
+    logout(request)
+    return redirect("shop:homepage")

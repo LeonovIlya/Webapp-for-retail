@@ -123,8 +123,7 @@ class Comment(models.Model):
                                 blank=True,
                                 null=True,
                                 on_delete=models.CASCADE)
-    rating = models.PositiveIntegerField(max_length=1,
-                                         choices=RATING_TYPE_CHOICES)
+    rating = models.PositiveIntegerField(choices=RATING_TYPE_CHOICES)
     posted = models.DateTimeField(default=timezone.now)
 
     class Meta:

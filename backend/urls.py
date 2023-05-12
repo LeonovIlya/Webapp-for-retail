@@ -1,3 +1,5 @@
+from django.contrib.auth import logout
+from django.conf import settings
 from django.urls import path, include
 from django_rest_passwordreset.views import reset_password_request_token, \
     reset_password_confirm

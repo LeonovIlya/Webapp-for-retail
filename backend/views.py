@@ -5,7 +5,7 @@ from django.db import IntegrityError
 from django.db.models import Q, Sum, F
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 
 from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
@@ -25,7 +25,7 @@ from .signals import new_user_registered
 from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
     Parameter, Brand
 from authorization.forms import CommentForm
-from authorization.models import Contact, ConfirmEmailToken
+from authorization.models import Contact, ConfirmEmailToken, Comment, User
 from authorization.serializers import CommentSerializer
 from .serializers import CategorySerializer, ShopSerializer, \
     ProductInfoSerializer, OrderSerializer, OrderItemSerializer, \
@@ -502,35 +502,37 @@ class ProductInfoView(APIView):
     def get(self, request, product_id, *args, **kwargs):
         product_info = get_object_or_404(ProductInfo,
                                          product_id=product_id)
-        serializer = ProductInfoSerializer(instance=product_info)
         parameters = Product.parameters.through.objects.filter(
             product_id=product_id)
+        comments = Comment.objects.filter(product_id=product_id)
+        serializer = ProductInfoSerializer(instance=product_info)
 
         if request.accepted_renderer.format == 'html':
             data = {
                 'serializer': serializer,
                 'product_info': product_info,
                 'parameters': parameters,
+                'comments': comments
             }
             return Response(data)
 
         data = serializer.data
         return Response(data)
 
-    def add_comment(self, product_id, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         # if not request.user.is_authenticated:
         #     return Response({'Status': False, 'Error': 'Log in required'},
         #                     status=status.HTTP_403_FORBIDDEN)
         # if request.user.type != 'buyer':
         #     return Response({'Status': False, 'Error': 'Only for buyers!'},
         #                     status=status.HTTP_403_FORBIDDEN)
-        if request.method == 'POST':
-            form = CommentForm(request.POST)
-            if form.is_valid():
-                form.save()
-                return redirect('Items-list')
 
-
-
-
-
+        new_comment = Comment.objects.create(
+            user=User.objects.get(id=request.data['user']),
+            text=request.data['text'],
+            product=Product.objects.get(id=request.data['product']),
+            rating=request.data['rating']
+        )
+        new_comment.save()
+        return redirect("backend:product_info",
+                        product_id=request.data['product'])

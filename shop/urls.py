@@ -9,7 +9,8 @@ urlpatterns = [
     path('grappelli/', include('grappelli.urls')),
     path('admin/', admin.site.urls),
     path('shop/', include('backend.urls', namespace='backend')),
-    path('auth/', include('authorization.urls')),
+    path('auth/', include(('authorization.urls', 'authorization'),
+         namespace='authorization')),
     path('authorization/profile/', profileView, name='profile'),
 ]
 

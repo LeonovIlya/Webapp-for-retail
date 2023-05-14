@@ -1740,6 +1740,7 @@ textarea.input {
   position: relative;
   padding-left: 145px;
   margin-bottom: 30px;
+  border-bottom: 1px solid;
 }
 
 .reviews .review-heading {
@@ -1752,6 +1753,7 @@ textarea.input {
 
 .reviews .review-body {
   min-height: 70px;
+  font-size: 14px;
 }
 
 .reviews .review-heading .name {
@@ -1761,7 +1763,7 @@ textarea.input {
 
 .reviews .review-heading .date {
   color: #8D99AE;
-  font-size: 10px;
+  font-size: 12px;
   margin: 0;
 }
 

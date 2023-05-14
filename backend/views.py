@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.db import IntegrityError
-from django.db.models import Q, Sum, F
+from django.db.models import Q, Sum, F, Avg
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
@@ -504,7 +504,10 @@ class ProductInfoView(APIView):
                                          product_id=product_id)
         parameters = Product.parameters.through.objects.filter(
             product_id=product_id)
-        comments = Comment.objects.filter(product_id=product_id)
+        comments = Comment.objects.filter(product_id=product_id).order_by(
+            '-posted')
+        avg_rating = Comment.objects.filter(
+            product_id=product_id).aggregate(Avg('rating'))['rating__avg']
         serializer = ProductInfoSerializer(instance=product_info)
 
         if request.accepted_renderer.format == 'html':
@@ -512,7 +515,8 @@ class ProductInfoView(APIView):
                 'serializer': serializer,
                 'product_info': product_info,
                 'parameters': parameters,
-                'comments': comments
+                'comments': comments,
+                'avg_rating': avg_rating
             }
             return Response(data)
 

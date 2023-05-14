@@ -46,11 +46,12 @@
 						<li><a href="#"><i class="fa fa-phone"></i> +012-34-56-789</a></li>
 						<li><a href="#"><i class="fa fa-envelope-o"></i> email@email.com</a></li>
 						<li><a href="#"><i class="fa fa-map-marker"></i> London, Abbey road, 3</a></li>
+						<li><a href="#"><i class="fa fa-calendar"></i> Current datetime: {% now "jS F Y H:i" %}</a></li>
 					</ul>
 					<ul class="header-links pull-right">
-						<li><a href="#"><i class="fa fa-dollar"></i> RUB</a></li>
+						<li><a href="#"><i class="fa fa-rub"></i> RUB</a></li>
 						 {% if user.is_authenticated %}
-						<li><a href=" ">{{ user.get_username }}</a></li>
+						<li><a href=" ">{{ user.username }}</a></li>
 						<li><a href="{% url 'authorization:logout' %}">Logout</a></li>
 						 {% else %}
 						<li><<a href="{% url 'authorization:login' %}">Login</a></li>

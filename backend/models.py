@@ -126,7 +126,7 @@ class ProductInfo(models.Model):
                              verbose_name='Модель')
     brand = models.ForeignKey(Brand,
                               verbose_name='Торговая марка',
-                              related_name='product_infos',
+                              related_name='product_info',
                               blank=True,
                               on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
@@ -134,13 +134,14 @@ class ProductInfo(models.Model):
     price_rrc = models.PositiveIntegerField(verbose_name='Рекомендуемая '
                                                          'розничная цена')
     product = models.ForeignKey(Product,
+                                to_field='id',
                                 verbose_name='Товар',
-                                related_name='product_infos',
+                                related_name='product_info',
                                 blank=True,
                                 on_delete=models.CASCADE)
     shop = models.ForeignKey(Shop,
                              verbose_name='Магазин',
-                             related_name='product_infos',
+                             related_name='product_info',
                              blank=True,
                              on_delete=models.CASCADE)
 
@@ -151,7 +152,7 @@ class ProductInfo(models.Model):
             models.UniqueConstraint(fields=['product', 'shop'],
                                     name='unique_product_info'),
         ]
-        ordering = ('product',)
+        ordering = ('product', 'price', 'quantity')
 
     def __str__(self):
         return f'{self.product.name} ({self.shop.name})'

@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import IntegrityError
 from django.db.models import Q, Sum, F, Avg
 from django.db.models.query import Prefetch
@@ -473,24 +474,42 @@ class PartnerUpdate(APIView):
 
 class IndexView(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
+    template_name = 'store.html'
 
     def get(self, request, *args, **kwargs):
-        price_filter = ProductPriceFilter(request.GET)
-        products_queryset = ProductInfo.objects.all()
-        categories_queryset = Category.objects.all()
-        brands_queryset = Brand.objects.all()
-        paginate_by = 20
-
         if request.accepted_renderer.format == 'html':
-            data = {
-                'products_info': products_queryset,
-                'categories': categories_queryset,
-                'brands': brands_queryset,
-                'price_filter': price_filter
-            }
-            return Response(data, template_name='store.html')
+            price_filter = ProductPriceFilter()
 
-        serializer = ProductInfoSerializer(instance=product_queryset)
+            products = ProductInfo.objects.all()
+            categories = Category.objects.all()
+            brands = Brand.objects.all()
+
+            paginate_by = request.GET.get('paginate_by', 20)
+            sort_by = request.GET.get('sort_by', 'id')
+            sorted_products = products.order_by(sort_by)
+
+            paginator = Paginator(sorted_products, paginate_by)
+            page = request.GET.get('page')
+
+            try:
+                products_info = paginator.get_page(page)
+            except PageNotAnInteger:
+                products_info = paginator.get_page(1)
+            except EmptyPage:
+                products_info = paginator.page(paginator.num_pages)
+
+            data = {
+                'products': products,
+                'products_info': products_info,
+                'categories': categories,
+                'brands': brands,
+                'price_filter': price_filter,
+                'paginate_by': paginate_by,
+                'sort_by': sort_by
+            }
+            return Response(data)
+
+        serializer = ProductInfoSerializer(instance=products)
         data = serializer.data
         return Response(data)
 

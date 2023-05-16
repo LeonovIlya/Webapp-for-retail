@@ -75,28 +75,29 @@
 					<div id="store" class="col-md-9">
 						<!-- store top filter -->
 						<div class="store-filter clearfix">
-							<div class="store-sort">
+							<form class="store-sort" method="GET">
 								<label>
 									Sort By:
-									<select class="input-select">
-										<option value="0">Price</option>
-										<option value="1">Popular</option>
-										<option value="2">Position</option>
-										<option value="3">Name</option>
+									<select name="sort_by" class="input-select">
+										<option value="price">Price↑</option>
+										<option value="-price">Price↓</option>
+										<option value="product__name">Name↑</option>
+										<option value="-product__name">Name↓</option>
 									</select>
 								</label>
-
 								<label>
 									Show:
-									<select class="input-select">
-										<option value="0">20</option>
-										<option value="1">50</option>
-										<option value="2">100</option>
-										<option value="3">ALL</option>
+									<select name="paginate_by" class="input-select">
+										<option value="20">20</option>
+										<option value="50">50</option>
+										<option value="100">100</option>
 									</select>
 								</label>
-								<label>Total products:</label> {{ products_info|length }}
-							</div>
+								<button class="primary-btn-ltl">OK</button>
+								<label>
+								Total products:<b>{{ products|length }}</b>
+								</label>
+							</form>
 						</div>
 						<!-- /store top filter -->
 
@@ -141,18 +142,44 @@
 						</div>
 						<!-- /store products -->
 
-						<!-- store bottom filter -->
+						 <!--Pagination-->
 						<div class="store-filter clearfix">
-							<span class="store-qty">Showing 20-100 products</span>
-							<ul class="store-pagination">
-								<li class="active">1</li>
-								<li><a href="#">2</a></li>
-								<li><a href="#">3</a></li>
-								<li><a href="#">4</a></li>
-								<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
-							</ul>
+							<nav aria-label="Page navigation example">
+							  <ul class="store-pagination">
+								{% if products_info.has_previous %}
+								  <li class="page-item">
+									<a class="page-link" href="{{ request.get_full_path }}&page={{ products_info.previous_page_number }}">&lt&lt</a>
+								  </li>
+								{% else %}
+								  <li class="page-item disabled">
+									<a class="page-link" href="#" tabindex="-1" aria-disabled="True">&lt&lt</a>
+								  </li>
+								{% endif %}
+								{% for i in products_info.paginator.page_range %}
+								  {% if products_info.number == i %}
+									<li class="page-item active" aria-current="page">
+									  <span class="page-link">
+										{{ i }}
+										<span class="sr-only">(current)</span>
+									  </span>
+									</li>
+								  {% else %}
+									<li class="page-item"><a class="page-link" href="{{ request.get_full_path }}&page={{ i }}">{{ i }}</a></li>
+								  {% endif %}
+								{% endfor %}
+								{% if products_info.has_next %}
+								  <li class="page-item">
+									<a class="page-link" href="{{ request.get_full_path }}&page={{ products_info.next_page_number }}">&gt&gt</a>
+								  </li>
+								{% else %}
+								  <li class="page-item disabled">
+									<a class="page-link" href="#" tabindex="-1" aria-disabled="True">&gt&gt</a>
+								  </li>
+								{% endif %}
+							  </ul>
+							</nav>
 						</div>
-						<!-- /store bottom filter -->
+							<!--end of Pagination-->
 					</div>
 					<!-- /STORE -->
 				</div>

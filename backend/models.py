@@ -7,8 +7,8 @@ from django.dispatch import receiver
 storage = FileSystemStorage(location=settings.STORAGE)
 
 STATUS_CHOICES = (
-    ('basket', 'Статус корзины'),
     ('new', 'Новый'),
+    ('ordered', 'Заказан'),
     ('confirmed', 'Подтвержден'),
     ('assembled', 'Собран'),
     ('sent', 'Отправлен'),

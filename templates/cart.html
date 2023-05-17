@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+		<!-- BREADCRUMB -->
+		<div id="breadcrumb" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<h3 class="breadcrumb-header">Checkout</h3>
+						<ul class="breadcrumb-tree">
+							<li><a href="{% url 'backend:index' %}">Home</a></li>
+							<li class="active">Checkout</li>
+						</ul>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /BREADCRUMB -->
+
+		<!-- SECTION -->
+		<div class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+
+					<div class="col-md-7">
+						<!-- Billing Details -->
+						{% for message in messages %}
+						<div class="alert-danger">
+							<a class="close" href="#" data-dismiss="alert">×</a>
+							{{ message }}
+						</div>
+                        {% endfor %}
+						{% if order %}
+						<div class="billing-details">
+							<div class="section-title">
+								<h3 class="title">Shiping and Billing address</h3>
+							</div>
+
+							Email
+							<div class="form-group">
+								<input class="input" type="email" name="email" placeholder="{{ order.user.email }}">
+							</div>
+							City
+							<div class="form-group">
+								<input class="input" type="text" name="city" placeholder="{{ order.contact.city }}">
+							</div>
+							Street
+							<div class="form-group">
+								<input class="input" type="text" name="street" placeholder="{{ order.contact.street }}">
+							</div>
+							House
+							<div class="form-group">
+								<input class="input" type="text" name="house" placeholder="{{ order.contact.house }}">
+							</div>
+							Structure
+							<div class="form-group">
+								<input class="input" type="text" name="structure" placeholder="{{ order.contact.structure }}">
+							</div>
+							Building
+							<div class="form-group">
+								<input class="input" type="text" name="building" placeholder="{{ order.contact.building }}">
+							</div>
+							Apartment
+							<div class="form-group">
+								<input class="input" type="text" name="apartment" placeholder="{{ order.contact.apartment }}">
+							</div>
+							Phone
+							<div class="form-group">
+								<input class="input" type="tel" name="phone" placeholder="{{ order.contact.phone}}">
+							</div>
+						</div>
+						<!-- /Billing Details -->
+					</div>
+
+					<!-- Order Details -->
+					<div class="col-md-5 order-details">
+						<div class="section-title text-center">
+							<h3 class="title">Your Order</h3>
+						</div>
+						<div class="order-summary">
+						<table class="table">
+						  <thead>
+							<tr>
+								<th scope="col">№</th>
+							  	<th scope="col">Product</th>
+							  	<th scope="col">Quantity</th>
+							  	<th scope="col">Price</th>
+							  	<th scope="col">Total</th>
+								<th scope="col"></th>
+							</tr>
+						  </thead>
+							<tbody>
+							{% for product in products %}
+							<tr>
+							  	<th scope="row">{{ forloop.counter }}</th>
+							  	<td>{{ product.product.name }}</td>
+							  	<td>{{ product.quantity }}</td>
+							  	<td>{{ product.price_per_item|floatformat }} ₽</td>
+								<td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
+								<td><a href="{% url 'authorization:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
+							</tr>
+							{% endfor %}
+						  </tbody>
+						</table>
+							<div class="order-col">
+								<div>Shiping</div>
+								<div><strong>FREE</strong></div>
+							</div>
+							<div class="order-col">
+								<div><strong>TOTAL</strong></div>
+								<div><strong class="order-total">{{ total_price.total_price__sum }} ₽</strong></div>
+							</div>
+						</div>
+						<a href="{% url 'authorization:place_order' %}" class="primary-btn order-submit" type="submit">Place order</a>
+						{% endif %}
+					</div>
+					<!-- /Order Details -->
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /SECTION -->
+
+{% endblock %}

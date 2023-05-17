@@ -484,6 +484,12 @@ class IndexView(APIView):
             categories = Category.objects.all()
             brands = Brand.objects.all()
 
+            try:
+                cart_count = Order.objects.filter(status='new').values_list(
+                    'total_items_count', flat=True).get(user=self.request.user)
+            except Order.DoesNotExist:
+                cart_count = None
+
             paginate_by = request.GET.get('paginate_by', 20)
             sort_by = request.GET.get('sort_by', 'id')
             sorted_products = products.order_by(sort_by)
@@ -505,7 +511,8 @@ class IndexView(APIView):
                 'brands': brands,
                 'price_filter': price_filter,
                 'paginate_by': paginate_by,
-                'sort_by': sort_by
+                'sort_by': sort_by,
+                'cart_count': cart_count
             }
             return Response(data)
 
@@ -527,6 +534,11 @@ class ProductInfoView(APIView):
             '-posted')
         avg_rating = Comment.objects.filter(
             product_id=product_id).aggregate(Avg('rating'))['rating__avg']
+        try:
+            cart_count = Order.objects.filter(status='new').values_list(
+                'total_items_count', flat=True).get(user=self.request.user)
+        except Order.DoesNotExist:
+            cart_count = None
         serializer = ProductInfoSerializer(instance=product_info)
 
         if request.accepted_renderer.format == 'html':
@@ -535,7 +547,8 @@ class ProductInfoView(APIView):
                 'product_info': product_info,
                 'parameters': parameters,
                 'comments': comments,
-                'avg_rating': avg_rating
+                'avg_rating': avg_rating,
+                'cart_count': cart_count
             }
             return Response(data)
 

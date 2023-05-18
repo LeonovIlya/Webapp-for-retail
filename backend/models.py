@@ -216,10 +216,7 @@ class OrderItem(models.Model):
                                 blank=True,
                                 null=True,
                                 on_delete=models.SET_NULL)
-
-    external_id = models.PositiveIntegerField(verbose_name='Внешний ИД',
-                                              blank=True)
-    quantity = models.PositiveIntegerField(default=1,
+    quantity = models.PositiveIntegerField(default=0,
                                            verbose_name='Количество')
     price_per_item = models.DecimalField(default=0,
                                          max_digits=10,

@@ -42,15 +42,24 @@
 							</div>
 
 							<div class="product-preview">
-								<img src="/static/backend/img/product03.png" alt="">
+								<img src={% if product_info.product.image1 %}
+											 		{{ product_info.product.image.url }}
+											     {% else %}
+													"/media/products/blank.png"{% endif %} alt="">
 							</div>
 
 							<div class="product-preview">
-								<img src="/static/backend/img/product06.png" alt="">
+								<img src={% if product_info.product.image2 %}
+											 		{{ product_info.product.image.url }}
+											     {% else %}
+													"/media/products/blank.png"{% endif %} alt="">
 							</div>
 
 							<div class="product-preview">
-								<img src="/static/backend/img/product08.png" alt="">
+								<img src={% if product_info.product.image3 %}
+											 		{{ product_info.product.image.url }}
+											     {% else %}
+													"/media/products/blank.png"{% endif %} alt="">
 							</div>
 						</div>
 					</div>
@@ -67,15 +76,24 @@
 							</div>
 
 							<div class="product-preview">
-								<img src="/static/backend/img/product03.png" alt="">
+								<img src={% if product_info.product.image1 %}
+											 		{{ product_info.product.image.url }}
+											     {% else %}
+													"/media/products/blank.png"{% endif %} alt="">
 							</div>
 
 							<div class="product-preview">
-								<img src="/static/backend/img/product06.png" alt="">
+								<img src={% if product_info.product.image2 %}
+											 		{{ product_info.product.image.url }}
+											     {% else %}
+													"/media/products/blank.png"{% endif %} alt="">
 							</div>
 
 							<div class="product-preview">
-								<img src="/static/backend/img/product08.png" alt="">
+								<img src={% if product_info.product.image3 %}
+											 		{{ product_info.product.image.url }}
+											     {% else %}
+													"/media/products/blank.png"{% endif %} alt="">
 							</div>
 						</div>
 					</div>
@@ -112,7 +130,8 @@
 										<span class="qty-down">-</span>
 									</div>
 								</div>
-								<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i> add to cart</button>
+								<button class="add-to-cart-btn" onclick="location.href='{% url 'authorization:add_to_cart' product_info.product_id %}'"><i class="fa fa-shopping-cart"></i> add to cart</button>
+
 							</div>
 						</div>
 					</div>
@@ -177,10 +196,12 @@
 										<div class="col-md-3">
 											<div id="rating">
 												<div class="rating-avg">
+													{% if avg_rating %}
 													<span>{{ avg_rating|floatformat }}</span>
 													<div class="rating-stars">
 														<i class="fa fa-star"></i>
 													</div>
+													{% endif %}
 												</div>
 												<ul class="rating">
 													<li>
@@ -194,7 +215,7 @@
 														<div class="rating-progress">
 															<div style="width: 100%;"></div>
 														</div>
-														<span class="sum">5</span>
+														<span class="sum">0</span>
 													</li>
 													<li>
 														<div class="rating-stars">
@@ -285,14 +306,6 @@
 														No reviews yet!
 													</h5>
 												</div>
-
-												<ul class="reviews-pagination">
-													<li class="active">1</li>
-													<li><a href="#">2</a></li>
-													<li><a href="#">3</a></li>
-													<li><a href="#">4</a></li>
-													<li><a href="#"><i class="fa fa-angle-right"></i></a></li>
-												</ul>
 												{% endif %}
 											</div>
 										</div>
@@ -300,6 +313,16 @@
 
 										<!-- Review Form -->
 										<div class="col-md-3">
+											{% for message in messages %}
+											<div class="container-fluid p-0">
+											  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+												<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+												  <span aria-hidden="True">&times;</span>
+												</button>
+												{{ message }}
+											  </div>
+											</div>
+											{% endfor %}
 											<div id="review-form">
 												{% if user.is_authenticated %}
 												<form class="review-form" method="POST">
@@ -345,5 +368,4 @@
 			<!-- /container -->
 		</div>
 		<!-- /SECTION -->
-
 {% endblock %}

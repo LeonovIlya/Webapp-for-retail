@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -562,12 +563,21 @@ class ProductInfoView(APIView):
         # if request.user.type != 'buyer':
         #     return Response({'Status': False, 'Error': 'Only for buyers!'},
         #                     status=status.HTTP_403_FORBIDDEN)
-
+        text = request.POST.get('text')
+        if not text:
+            messages.error(request, 'Need text to add review')
+            return redirect("backend:product_info",
+                            product_id=request.data['product'])
+        rating = request.POST.get('rating')
+        if not rating:
+            messages.error(request, 'Need rating to add review')
+            return redirect("backend:product_info",
+                            product_id=request.data['product'])
         new_comment = Comment.objects.create(
             user=User.objects.get(id=request.data['user']),
-            text=request.data['text'],
+            text=text,
             product=Product.objects.get(id=request.data['product']),
-            rating=request.data['rating']
+            rating=rating
         )
         new_comment.save()
         return redirect("backend:product_info",

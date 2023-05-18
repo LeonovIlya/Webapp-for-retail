@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from .models import Contact
 from .serializers import UserRegSerializer, ContactSerializer
 
-from backend.models import Order, OrderItem
+from backend.models import Order, OrderItem, Product, ProductInfo
 
 
 def profileView(request):
@@ -74,7 +74,7 @@ class LoginView(APIView):
     def get(self, request, *args, **kwargs):
         return Response()
 
-    def post(self, request,  *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         email = request.data['email']
         password = request.data['password']
         user = authenticate(email=email, password=password)
@@ -144,6 +144,26 @@ def logout_request(request):
 
 
 @login_required
+def add_to_cart(request, product_id):
+    product = get_object_or_404(Product, pk=product_id)
+    product_info = get_object_or_404(ProductInfo, product=product)
+    order, created = Order.objects.get_or_create(status='new',
+                                                 is_active=True,
+                                                 user=request.user,
+                                                 contact=request.user.contacts.
+                                                 first())
+    order_item, created = OrderItem.objects.get_or_create(
+        brand=product_info.brand,
+        category=product.category,
+        product=product,
+        order=order,
+        shop=product_info.shop)
+    order_item.quantity += 1
+    order_item.save()
+    return redirect('backend:index')
+
+
+@login_required
 def remove_from_cart(request, item_id):
     try:
         order = Order.objects.filter(status='new', is_active=True).get(
@@ -167,10 +187,8 @@ def place_order(request):
             user=request.user)
         order.status = 'ordered'
         order.save()
+        messages.success(request, 'Order was placed successfully!')
         return redirect('authorization:cart')
     except ObjectDoesNotExist:
         messages.error(request, 'Something WRONG!')
         return redirect('authorization:cart')
-
-
-

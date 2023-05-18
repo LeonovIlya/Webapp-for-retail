@@ -29,14 +29,18 @@
 				<!-- row -->
 				<div class="row">
 
-					<div class="col-md-7">
+					<div class="col-md-5">
 						<!-- Billing Details -->
 						{% for message in messages %}
-						<div class="alert-danger">
-							<a class="close" href="#" data-dismiss="alert">×</a>
+						<div class="container-fluid p-0">
+						  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+							  <span aria-hidden="True">&times;</span>
+							</button>
 							{{ message }}
+						  </div>
 						</div>
-                        {% endfor %}
+						{% endfor %}
 						{% if order %}
 						<div class="billing-details">
 							<div class="section-title">
@@ -80,7 +84,7 @@
 					</div>
 
 					<!-- Order Details -->
-					<div class="col-md-5 order-details">
+					<div class="col-md-7 order-details">
 						<div class="section-title text-center">
 							<h3 class="title">Your Order</h3>
 						</div>
@@ -90,9 +94,9 @@
 							<tr>
 								<th scope="col">№</th>
 							  	<th scope="col">Product</th>
-							  	<th scope="col">Quantity</th>
-							  	<th scope="col">Price</th>
-							  	<th scope="col">Total</th>
+							  	<th scope="col">QTY</th>
+							  	<th style="width: 18%" scope="col">Price</th>
+							  	<th style="width: 18%" scope="col">Total</th>
 								<th scope="col"></th>
 							</tr>
 						  </thead>
@@ -100,8 +104,8 @@
 							{% for product in products %}
 							<tr>
 							  	<th scope="row">{{ forloop.counter }}</th>
-							  	<td>{{ product.product.name }}</td>
-							  	<td>{{ product.quantity }}</td>
+							  	<td><a href="{% url 'backend:product_info' product.id %}">{{ product.product.name }}</a></td>
+							  	<td class="text-center">{{ product.quantity }}</td>
 							  	<td>{{ product.price_per_item|floatformat }} ₽</td>
 								<td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
 								<td><a href="{% url 'authorization:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
@@ -115,7 +119,7 @@
 							</div>
 							<div class="order-col">
 								<div><strong>TOTAL</strong></div>
-								<div><strong class="order-total">{{ total_price.total_price__sum }} ₽</strong></div>
+								<div><strong class="order-total">{{ total_price.total_price__sum|floatformat }} ₽</strong></div>
 							</div>
 						</div>
 						<a href="{% url 'authorization:place_order' %}" class="primary-btn order-submit" type="submit">Place order</a>

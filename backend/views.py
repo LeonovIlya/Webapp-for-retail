@@ -487,8 +487,8 @@ class IndexView(APIView):
 
             try:
                 cart_count = Order.objects.filter(status='new').values_list(
-                    'total_items_count', flat=True).get(user=self.request.user)
-            except Order.DoesNotExist:
+                    'total_items_count', flat=True).get(user=request.user)
+            except:
                 cart_count = None
 
             paginate_by = request.GET.get('paginate_by', 20)

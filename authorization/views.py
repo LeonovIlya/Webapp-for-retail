@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Contact
+from .models import Comment,Contact, User
 from .serializers import UserRegSerializer, ContactSerializer
 
 from backend.models import Order, OrderItem, Product, ProductInfo
@@ -90,16 +90,22 @@ class ProfileView(LoginRequiredMixin, APIView):
     template_name = 'profile.html'
 
     def get(self, request, *args, **kwargs):
-
         try:
             cart_count = Order.objects.filter(status='new').values_list(
                 'total_items_count', flat=True).get(user=self.request.user)
         except Order.DoesNotExist:
             cart_count = None
+        user = User.objects.get(id=self.request.user.id)
+        contact = Contact.objects.get(user=self.request.user)
+        orders = Order.objects.filter(user=self.request.user)
+        reviews = Comment.objects.filter(user=self.request.user)
 
         data = {
-            'order': order,
-            'cart_count': cart_count
+            'cart_count': cart_count,
+            'user': user,
+            'contact': contact,
+            'orders': orders,
+            'reviews': reviews
         }
         return Response(data)
 

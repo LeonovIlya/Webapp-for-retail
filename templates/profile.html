@@ -1,7 +1,145 @@
 {% extends "base.html" %}
 
+{% load custom_tags %}
+
 {% block content %}
 
+<!-- BREADCRUMB -->
+		<div id="breadcrumb" class="section">
+			<!-- container -->
+			<div class="container">
+				<!-- row -->
+				<div class="row">
+					<div class="col-md-12">
+						<h3 class="breadcrumb-header">Profile</h3>
+					</div>
+				</div>
+				<!-- /row -->
+			</div>
+			<!-- /container -->
+		</div>
+		<!-- /BREADCRUMB -->
+
+		<div class="section">
+			<div class="container">
+                    <div class="col-md-12">
+                      <div class="tab-vertical">
+                        <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab1">My profile</a>
+                         </li>
+                          <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab2">My contact</a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab3">My orders</a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#tab4">My reviews</a>
+                          </li>
+                        </ul>
 
 
+                        <div class="tab-content">
+                            <div id="tab1" class="tab-pane fade in active">
+                                <h3 class="lead">My profile</h3>
+                                <ul class="list-group">
+                                    <li class="list-group-item"><b>Id:</b> {{ user.id }}</li>
+                                    <li class="list-group-item"><b>Username:</b> {{ user.username }}</li>
+                                    <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
+                                    <li class="list-group-item"><b>Data joined:</b> {{ user.date_joined }}</li>
+                                    <li class="list-group-item"><b>Email:</b> {{ user.email }}</li>
+                                    <li class="list-group-item"><b>Company:</b> {{ user.company }}</li>
+                                    <li class="list-group-item"><b>Position:</b> {{ user.position }}</li>
+                                    <li class="list-group-item"><b>User type:</b> {{ user.type }}</li>
+                                    <li class="list-group-item"><b>Is active:</b> {% if user.is_active is True %}YES{% else %}NO{% endif %}</li>
+                                    <li class="list-group-item"><b>Is staff:</b> {% if user.is_staff is True %}YES{% else %}NO{% endif %}</li>
+                                    <li class="list-group-item"><b>Is superuser:</b> {% if user.is_superuser is True %}YES{% else %}NO{% endif %}</li>
+                                </ul>
+                            </div>
+                            <div id="tab2" class="tab-pane fade in">
+                                <h3 class="lead">My contact</h3>
+                                <ul class="list-group">
+                                    <li class="list-group-item"><b>City:</b> {{ contact.city }}</li>
+                                    <li class="list-group-item"><b>Street:</b> {{ contact.street }}</li>
+                                    <li class="list-group-item"><b>House:</b> {{ contact.house }}</li>
+                                    <li class="list-group-item"><b>Structure:</b> {{ contact.structure }}</li>
+                                    <li class="list-group-item"><b>Building:</b> {{ contact.building }}</li>
+                                    <li class="list-group-item"><b>Apartment:</b> {{ contact.apartment }}</li>
+                                    <li class="list-group-item"><b>Phone:</b> {{ contact.phone }}</li>
+                                </ul>
+                            </div>
+                            <div id="tab3" class="tab-pane fade in">
+                                <h3 class="lead">My orders</h3>
+                                {% if orders %}
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">№</th>
+                                        <th scope="col">Order ID</th>
+                                        <th scope="col">Items Count</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Created</th>
+                                        <th scope="col">Updated</th>
+                                        <th scope="col">Active</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for order in orders%}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td class="text-center"><a href="">{{ order.id }}</a></td>
+                                        <td class="text-center">{{ order.total_items_count }}</td>
+                                        <td>{{ order.status }}</td>
+                                        <td>{{ order.created }}</td>
+                                        <td>{{ order.updated }}</td>
+                                        <td class="text-center">{% if order.is_active is True %}YES{% else %}NO{% endif %}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                NO ORDERS!
+                                {% endif %}
+                            </div>
+                            <div id="tab4" class="tab-pane fade in">
+                                <h3 class="lead">My reviews</h3>
+                                 {% if reviews %}
+                                <table class="table">
+                                    <thead>
+                                    <tr>
+                                        <th scope="col">№</th>
+                                        <th scope="col">Product</th>
+                                        <th scope="col">Review Text</th>
+                                        <th scope="col">Review rating</th>
+                                        <th scope="col">Posted</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for review in reviews%}
+                                    <tr>
+                                        <th scope="row">{{ forloop.counter }}</th>
+                                        <td><a href="{% url 'backend:product_info' review.product.id %}">{{ review.product.name }}</a></td>
+                                        <td>{{ review.text }}</td>
+                                        <td style="width: 15%">
+                                                {% if review.rating %}
+                                                {% for n in review.rating|get_range %}
+                                                <i class="fa fa-star" style="color:#D10024"></i>
+                                                {% endfor %}
+                                                {% endif %}
+                                        </td>
+                                        <td>{{ review.posted }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                NO ORDERS!
+                                {% endif %}
+                            </div>
+                        </div>
+                      </div>
+                    </div>
+            </div>
+        </div>
 {% endblock %}

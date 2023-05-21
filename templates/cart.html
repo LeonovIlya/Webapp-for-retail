@@ -89,30 +89,31 @@
 							<h3 class="title">Your Order</h3>
 						</div>
 						<div class="order-summary">
-						<table class="table">
-						  <thead>
-							<tr>
-								<th scope="col">№</th>
-							  	<th scope="col">Product</th>
-							  	<th scope="col">QTY</th>
-							  	<th style="width: 18%" scope="col">Price</th>
-							  	<th style="width: 18%" scope="col">Total</th>
-								<th scope="col"></th>
-							</tr>
-						  </thead>
-							<tbody>
-							{% for product in products %}
-							<tr>
-							  	<th scope="row">{{ forloop.counter }}</th>
-							  	<td><a href="{% url 'backend:product_info' product.id %}">{{ product.product.name }}</a></td>
-							  	<td class="text-center">{{ product.quantity }}</td>
-							  	<td>{{ product.price_per_item|floatformat }} ₽</td>
-								<td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
-								<td><a href="{% url 'authorization:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
-							</tr>
-							{% endfor %}
-						  </tbody>
-						</table>
+							{% if products %}
+							<table class="table">
+							  <thead>
+								<tr>
+									<th scope="col">№</th>
+									<th scope="col">Product</th>
+									<th scope="col">QTY</th>
+									<th style="width: 18%" scope="col">Price</th>
+									<th style="width: 18%" scope="col">Total</th>
+									<th scope="col"></th>
+								</tr>
+							  </thead>
+								<tbody>
+								{% for product in products %}
+								<tr>
+									<th scope="row">{{ forloop.counter }}</th>
+									<td><a href="{% url 'backend:product_info' product.id %}">{{ product.product.name }}</a></td>
+									<td class="text-center">{{ product.quantity }}</td>
+									<td>{{ product.price_per_item|floatformat }} ₽</td>
+									<td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
+									<td><a href="{% url 'authorization:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
+								</tr>
+								{% endfor %}
+							  </tbody>
+							</table>
 							<div class="order-col">
 								<div>Shiping</div>
 								<div><strong>FREE</strong></div>
@@ -123,6 +124,9 @@
 							</div>
 						</div>
 						<a href="{% url 'authorization:place_order' %}" class="primary-btn order-submit" type="submit">Place order</a>
+						{% else %}
+						<h3>No products in your order!</h3>
+						{% endif %}
 						{% endif %}
 					</div>
 					<!-- /Order Details -->

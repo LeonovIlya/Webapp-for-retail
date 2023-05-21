@@ -86,9 +86,9 @@
                                     </thead>
                                     <tbody>
                                     {% for order in orders%}
-                                    <tr>
+                                    <tr class="clickable-row" data-href="{% url 'authorization:show_order' order.id %}">
                                         <th scope="row">{{ forloop.counter }}</th>
-                                        <td class="text-center"><a href="">{{ order.id }}</a></td>
+                                        <td class="text-center">{{ order.id }}</td>
                                         <td class="text-center">{{ order.total_items_count }}</td>
                                         <td>{{ order.status }}</td>
                                         <td>{{ order.created }}</td>
@@ -101,45 +101,58 @@
                                 {% else %}
                                 NO ORDERS!
                                 {% endif %}
+                                <div id="modals-here"></div>
                             </div>
                             <div id="tab4" class="tab-pane fade in">
-                                <h3 class="lead">My reviews</h3>
-                                 {% if reviews %}
-                                <table class="table">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">№</th>
-                                        <th scope="col">Product</th>
-                                        <th scope="col">Review Text</th>
-                                        <th scope="col">Review rating</th>
-                                        <th scope="col">Posted</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for review in reviews%}
-                                    <tr>
-                                        <th scope="row">{{ forloop.counter }}</th>
-                                        <td><a href="{% url 'backend:product_info' review.product.id %}">{{ review.product.name }}</a></td>
-                                        <td>{{ review.text }}</td>
-                                        <td style="width: 15%">
-                                                {% if review.rating %}
-                                                {% for n in review.rating|get_range %}
-                                                <i class="fa fa-star" style="color:#D10024"></i>
-                                                {% endfor %}
-                                                {% endif %}
-                                        </td>
-                                        <td>{{ review.posted }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                                {% else %}
-                                NO ORDERS!
-                                {% endif %}
+                                  <h3 class="lead">My reviews</h3>
+                                   {% if reviews %}
+                                  <table class="table">
+                                      <thead>
+                                      <tr>
+                                          <th scope="col">№</th>
+                                          <th scope="col">Product</th>
+                                          <th scope="col">Review Text</th>
+                                          <th scope="col">Review rating</th>
+                                          <th scope="col">Posted</th>
+                                      </tr>
+                                      </thead>
+                                      <tbody>
+                                      {% for review in reviews%}
+                                      <tr>
+                                          <th scope="row">{{ forloop.counter }}</th>
+                                          <td><a href="{% url 'backend:product_info' review.product.id %}">{{ review.product.name }}</a></td>
+                                          <td>{{ review.text }}</td>
+                                          <td style="width: 15%">
+                                                  {% if review.rating %}
+                                                  {% for n in review.rating|get_range %}
+                                                  <i class="fa fa-star" style="color:#D10024"></i>
+                                                  {% endfor %}
+                                                  {% endif %}
+                                          </td>
+                                          <td>{{ review.posted }}</td>
+                                      </tr>
+                                      {% endfor %}
+                                      </tbody>
+                                  </table>
+                                  {% else %}
+                                  NO ORDERS!
+                                  {% endif %}
                             </div>
                         </div>
                       </div>
                     </div>
             </div>
         </div>
+<script>
+var elements = document.getElementsByClassName('clickable-row');
+for (var i = 0; i < elements.length; i++) {
+    var element = elements[i];
+    element.addEventListener('click', function() {
+        var href = this.dataset.href;
+        if (href) {
+            window.location.assign(href);
+        }
+    });
+}
+</script>
 {% endblock %}

@@ -12,3 +12,4 @@ factory-boy
 python-dotenv
 openai
 pillow
+django-widget-tweaks

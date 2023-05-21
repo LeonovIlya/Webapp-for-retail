@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
 from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
@@ -12,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 
-from .models import Comment,Contact, User
+from .models import Comment, Contact, User
 from .serializers import UserRegSerializer, ContactSerializer
 
 from backend.models import Order, OrderItem, Product, ProductInfo
@@ -143,6 +144,35 @@ class CartView(LoginRequiredMixin, APIView):
         pass
 
 
+class OrderView(LoginRequiredMixin, APIView):
+    template_name = 'order.html'
+
+    def get(self, request, order_id, *args, **kwargs):
+        try:
+            order = get_object_or_404(Order,
+                                      id=order_id,
+                                      user=request.user)
+            products = OrderItem.objects.filter(order=order)
+            total_price = OrderItem.objects.filter(order=order).aggregate(
+                Sum('total_price'))
+            try:
+                cart_count = Order.objects.filter(status='new').values_list(
+                    'total_items_count', flat=True).get(user=self.request.user)
+            except Order.DoesNotExist:
+                cart_count = None
+
+            data = {
+                'order': order,
+                'products': products,
+                'total_price': total_price,
+                'cart_count': cart_count
+            }
+            return Response(data)
+        except ObjectDoesNotExist:
+            messages.error(request, 'Something WRONG!')
+            return Response()
+
+
 @login_required
 def logout_request(request):
     logout(request)
@@ -151,29 +181,38 @@ def logout_request(request):
 
 @login_required
 def add_to_cart(request, product_id):
-    product = get_object_or_404(Product, pk=product_id)
-    product_info = get_object_or_404(ProductInfo, product=product)
-    order, created = Order.objects.get_or_create(status='new',
-                                                 is_active=True,
-                                                 user=request.user,
-                                                 contact=request.user.contacts.
-                                                 first())
-    order_item, created = OrderItem.objects.get_or_create(
-        brand=product_info.brand,
-        category=product.category,
-        product=product,
-        order=order,
-        shop=product_info.shop)
-    order_item.quantity += 1
-    order_item.save()
-    return redirect('backend:index')
+    product = get_object_or_404(Product,
+                                pk=product_id)
+    product_info = get_object_or_404(ProductInfo,
+                                     product=product)
+    if product_info.quantity >= 1:
+        order, created = Order.objects.get_or_create(status='new',
+                                                     is_active=True,
+                                                     user=request.user,
+                                                     contact=request.user.contacts.
+                                                     first())
+        order_item, created = OrderItem.objects.get_or_create(
+            brand=product_info.brand,
+            category=product.category,
+            product=product,
+            order=order,
+            shop=product_info.shop)
+        order_item.quantity += 1
+        order_item.save()
+        messages.success(request, 'Product added successfully!')
+        return redirect(request.META.get('HTTP_REFERER',
+                                         'redirect_if_referer_not_found'))
+    else:
+        messages.error(request, 'SORRY, OUT OF STOCK!')
+        return redirect(request.META.get('HTTP_REFERER',
+                                         'redirect_if_referer_not_found'))
 
 
 @login_required
 def remove_from_cart(request, item_id):
     try:
-        order = Order.objects.filter(status='new', is_active=True).get(
-            user=request.user)
+        order = Order.objects.filter(status='new',
+                                     is_active=True).get(user=request.user)
         try:
             product = OrderItem.objects.filter(order=order).get(id=item_id)
             product.delete()
@@ -189,8 +228,8 @@ def remove_from_cart(request, item_id):
 @login_required
 def place_order(request):
     try:
-        order = Order.objects.filter(status='new', is_active=True).get(
-            user=request.user)
+        order = Order.objects.filter(status='new',
+                                     is_active=True).get(user=request.user)
         order.status = 'ordered'
         order.save()
         messages.success(request, 'Order was placed successfully!')

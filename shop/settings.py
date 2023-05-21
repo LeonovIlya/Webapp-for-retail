@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'djoser',
     'django_filters',
+    'widget_tweaks',
 
     'backend',
     'authorization',

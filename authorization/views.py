@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 
+from .forms import RegisterForm
 from .models import Comment, Contact, User
 from .serializers import UserRegSerializer, ContactSerializer
 
@@ -35,17 +36,17 @@ class RestrictedApiView(APIView):
         return Response(data)
 
 
-class RegistrationView(APIView):
-    def post(self, request):
-        serializer = UserRegSerializer(data=request.data)
-        data = {}
-        if serializer.is_valid():
-            user = serializer.save()
-            data['response'] = 'Successfully created a new User'
-            data['user'] = user.email
-        else:
-            data = serializer.errors
-        return Response(data)
+# class RegistrationView(APIView):
+#     def post(self, request):
+#         serializer = UserRegSerializer(data=request.data)
+#         data = {}
+#         if serializer.is_valid():
+#             user = serializer.save()
+#             data['response'] = 'Successfully created a new User'
+#             data['user'] = user.email
+#         else:
+#             data = serializer.errors
+#         return Response(data)
 
 
 @permission_classes([IsAuthenticated])
@@ -87,6 +88,38 @@ class LoginView(APIView):
             return redirect('authorization:login')
 
 
+class RegistrationView(APIView):
+    template_name = 'register.html'
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('authorization:profile')
+        else:
+            form = RegisterForm()
+            data = {
+                'form': form
+            }
+            return Response(data)
+
+    def post(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('authorization:profile')
+        else:
+            form = RegisterForm(request.POST or None)
+            if form.is_valid():
+                user = form.save(commit=False)
+                user.username = user.username.lower()
+                user.save()
+                messages.success(request, 'You have registered successfully!')
+                login(request, user)
+                return redirect('backend:index')
+            else:
+                data = {
+                     'form': form
+                 }
+                return Response(data)
+
+
 class ProfileView(LoginRequiredMixin, APIView):
     template_name = 'profile.html'
 
@@ -94,10 +127,16 @@ class ProfileView(LoginRequiredMixin, APIView):
         try:
             cart_count = Order.objects.filter(status='new').values_list(
                 'total_items_count', flat=True).get(user=self.request.user)
-        except Order.DoesNotExist:
+        except:
             cart_count = None
+
         user = User.objects.get(id=self.request.user.id)
-        contact = Contact.objects.get(user=self.request.user)
+
+        try:
+            contact = Contact.objects.get(user=self.request.user)
+        except:
+            contact = None
+
         orders = Order.objects.filter(user=self.request.user)
         reviews = Comment.objects.filter(user=self.request.user)
 

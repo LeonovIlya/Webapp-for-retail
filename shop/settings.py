@@ -49,10 +49,14 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
     'widget_tweaks',
+    'crispy_forms',
+    'crispy_bootstrap4',
 
     'backend',
     'authorization',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -116,7 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Moscow'
 
 USE_I18N = True
 

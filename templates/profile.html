@@ -46,12 +46,15 @@
                                 <ul class="list-group">
                                     <li class="list-group-item"><b>Id:</b> {{ user.id }}</li>
                                     <li class="list-group-item"><b>Username:</b> {{ user.username }}</li>
-                                    <li class="list-group-item"><b>Last Login:</b> {{ user.last_login }}</li>
-                                    <li class="list-group-item"><b>Data joined:</b> {{ user.date_joined }}</li>
+                                    <li class="list-group-item"><b>Last Login:</b> {{ user.last_login|date:"d/m/Y H:i" }}</li>
+                                    <li class="list-group-item"><b>Data joined:</b> {{ user.date_joined|date:"d/m/Y H:i" }}</li>
                                     <li class="list-group-item"><b>Email:</b> {{ user.email }}</li>
                                     <li class="list-group-item"><b>Company:</b> {{ user.company }}</li>
                                     <li class="list-group-item"><b>Position:</b> {{ user.position }}</li>
                                     <li class="list-group-item"><b>User type:</b> {{ user.type }}</li>
+                                    {% if user.type == 'shop' %}
+                                    <li class="list-group-item"><b>Shop:</b> {{ user.shop.name }}</li>
+                                    {% endif %}
                                     <li class="list-group-item"><b>Is active:</b> {% if user.is_active is True %}YES{% else %}NO{% endif %}</li>
                                     <li class="list-group-item"><b>Is staff:</b> {% if user.is_staff is True %}YES{% else %}NO{% endif %}</li>
                                     <li class="list-group-item"><b>Is superuser:</b> {% if user.is_superuser is True %}YES{% else %}NO{% endif %}</li>
@@ -91,8 +94,8 @@
                                         <td class="text-center">{{ order.id }}</td>
                                         <td class="text-center">{{ order.total_items_count }}</td>
                                         <td>{{ order.status }}</td>
-                                        <td>{{ order.created }}</td>
-                                        <td>{{ order.updated }}</td>
+                                        <td>{{ order.created|date:"d/m/Y H:i" }}</td>
+                                        <td>{{ order.updated|date:"d/m/Y H:i" }}</td>
                                         <td class="text-center">{% if order.is_active is True %}YES{% else %}NO{% endif %}</td>
                                     </tr>
                                     {% endfor %}

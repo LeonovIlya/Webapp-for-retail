@@ -28,7 +28,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
     USERNAME_FIELD = 'email'
     email = models.EmailField(verbose_name='Email',
-                              unique=True)
+                              unique=True,
+                              error_messages={
+                                  'unique': _(
+                                      "A user with that email already exists.")
+                              }
+                              )
     company = models.CharField(verbose_name='Компания',
                                max_length=80,
                                blank=True)
@@ -43,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                     '@/./+/-/_ only.'),
         validators=[username_validator],
         error_messages={
-            'unique': _("A user with that username already exists."),
+            'unique': _("A user with that username already exists.")
         },
     )
     is_active = models.BooleanField(

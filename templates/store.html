@@ -139,7 +139,9 @@
 										</div>
 									</div>
 									<div class="add-to-cart">
+										{% if user.is_authenticated %}
 										<button class="add-to-cart-btn" onclick="location.href='{% url 'authorization:add_to_cart' pi.product_id %}'"><i class="fa fa-shopping-cart"></i>add to cart</button>
+										{% endif %}
 									</div>
 								</div>
 							</div>

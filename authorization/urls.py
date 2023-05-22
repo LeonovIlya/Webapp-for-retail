@@ -33,5 +33,7 @@ urlpatterns = [
     path('add_to_cart/<int:product_id>', add_to_cart,
          name='add_to_cart'),
     path('profile/order/<int:order_id>/', OrderView.as_view(),
-         name='show_order')
+         name='show_order'),
+    path('register', RegistrationView.as_view(),
+         name='register')
 ]

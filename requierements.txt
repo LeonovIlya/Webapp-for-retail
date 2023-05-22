@@ -13,3 +13,4 @@ python-dotenv
 openai
 pillow
 django-widget-tweaks
+django-crispy-forms

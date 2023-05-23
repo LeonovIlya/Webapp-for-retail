@@ -1,10 +1,10 @@
-import django_filters
-from .models import ProductInfo
-
-
-class ProductPriceFilter(django_filters.FilterSet):
-    price = django_filters.AllValuesFilter()
-
-    class Meta:
-        model = ProductInfo
-        fields = ['price']
+# from django_filters import FilterSet, RangeFilter
+# from .models import ProductInfo
+#
+#
+# class ProductPriceFilter(FilterSet):
+#     price = RangeFilter()
+#
+#     class Meta:
+#         model = ProductInfo
+#         fields = ['price']

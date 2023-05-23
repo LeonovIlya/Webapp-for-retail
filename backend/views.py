@@ -4,10 +4,11 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import IntegrityError
-from django.db.models import Q, Sum, F, Avg
+from django.db.models import Q, Sum, F, Avg, Max, Min
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from decimal import Decimal as D
 
 from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
@@ -21,7 +22,6 @@ from ujson import loads as load_json
 from distutils.util import strtobool
 from requests import get
 
-from .filters import ProductPriceFilter
 from .tasks import import_shop_data
 from .signals import new_user_registered
 from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
@@ -479,9 +479,24 @@ class IndexView(APIView):
 
     def get(self, request, *args, **kwargs):
         if request.accepted_renderer.format == 'html':
-            price_filter = ProductPriceFilter()
 
-            products = ProductInfo.objects.all()
+            price_min_abs = ProductInfo.objects.aggregate(Min('price'))[
+                'price__min']
+            price_max_abs = ProductInfo.objects.aggregate(Max('price'))[
+                'price__max']
+
+            price_min = D(request.GET.get('min_price', 0))
+
+            if not price_min:
+                price_min = price_min_abs
+
+            price_max = D(request.GET.get('max_price', 0))
+
+            if not price_max:
+                price_max = price_max_abs
+
+            products = ProductInfo.objects.filter(price__range=(price_min,
+                                                                price_max))
             categories = Category.objects.all()
             brands = Brand.objects.all()
 
@@ -510,10 +525,13 @@ class IndexView(APIView):
                 'products_info': products_info,
                 'categories': categories,
                 'brands': brands,
-                'price_filter': price_filter,
                 'paginate_by': paginate_by,
                 'sort_by': sort_by,
-                'cart_count': cart_count
+                'cart_count': cart_count,
+                'price_min': price_min,
+                'price_max': price_max,
+                'price_min_abs': price_min_abs,
+                'price_max_abs': price_max_abs
             }
             return Response(data)
 
@@ -557,12 +575,6 @@ class ProductInfoView(APIView):
         return Response(data)
 
     def post(self, request, *args, **kwargs):
-        # if not request.user.is_authenticated:
-        #     return Response({'Status': False, 'Error': 'Log in required'},
-        #                     status=status.HTTP_403_FORBIDDEN)
-        # if request.user.type != 'buyer':
-        #     return Response({'Status': False, 'Error': 'Only for buyers!'},
-        #                     status=status.HTTP_403_FORBIDDEN)
         text = request.POST.get('text')
         if not text:
             messages.error(request, 'Need text to add review')

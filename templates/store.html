@@ -22,7 +22,7 @@
 									<label for="{{ category.name }}">
 										<span></span>
 										{{ category.name }}
-										<small></small>
+										<small>({{ category.products.all.count }})</small>
 									</label>
 								</div>
 								{% endfor %}
@@ -33,24 +33,27 @@
 						<!-- aside Widget -->
 						<div class="aside">
 							<h3 class="aside-title">Price</h3>
-							<form method="get">
-    						{{ price_filter.form }}
-    						<input type="submit" />
+							<form method="GET">
+								<div class="range_container">
+									<div class="sliders_control">
+									   <input id="fromSlider" type="range" value="{{ price_min }}" min="{{ price_min_abs }}" max="{{ price_max_abs }}"/>
+									   <input id="toSlider" type="range" value="{{ price_max }}" min="{{ price_min_abs }}" max="{{ price_max_abs }}"/>
+									</div>
+									<div class="form_control">
+									  <div class="form_control_container">
+										  <div class="form_control_container__time">Min</div>
+										  <input class="form_control_container__time__input" type="number" id="fromInput" name="min_price" value="{{ price_min }}" min="{{ price_min_abs }}" max="{{ price_max_abs }}">
+										</div>
+										<div class="form_control_container">
+										  <div class="form_control_container__time">Max</div>
+										  <input class="form_control_container__time__input" type="number" id="toInput" name="max_price" value="{{ price_max }}" min="{{ price_min_abs }}" max="{{ price_max_abs }}">
+										</div>
+									</div>
+								</div>
+								<div class="vertical-center-button">
+									<input class="primary-btn" value="Submit" type="submit">
+								</div>
 							</form>
-							<div class="price-filter">
-								<div id="price-slider"></div>
-								<div class="input-number price-min">
-									<input id="price-min" type="number">
-									<span class="qty-up">+</span>
-									<span class="qty-down">-</span>
-								</div>
-								<span>-</span>
-								<div class="input-number price-max">
-									<input id="price-max" type="number">
-									<span class="qty-up">+</span>
-									<span class="qty-down">-</span>
-								</div>
-							</div>
 						</div>
 						<!-- /aside Widget -->
 
@@ -64,7 +67,7 @@
 									<label for="{{ brand.name }}">
 										<span></span>
 										{{ brand.name }}
-										<small>(578)</small>
+										<small>({{ brand.product_info.all.count }})</small>
 									</label>
 								</div>
 								{% endfor %}
@@ -96,10 +99,10 @@
 									</select>
 								</label>
 								<button class="primary-btn-ltl">OK</button>
-								<label>
-								Total products:<b>{{ products|length }}</b>
-								</label>
 							</form>
+							<div class="right-total-product">
+								Total products: <b>{{ products|length }}</b>
+							</div>
 						</div>
 						<!-- /store top filter -->
 
@@ -202,5 +205,4 @@
 			<!-- /container -->
 		</div>
 		<!-- /SECTION -->
-
 {% endblock %}

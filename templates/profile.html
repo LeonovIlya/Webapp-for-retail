@@ -41,105 +41,189 @@
 
 
                         <div class="tab-content">
+                            {% for message in messages %}
+                                <div class="container-fluid p-0">
+                                  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                      <span aria-hidden="True">&times;</span>
+                                    </button>
+                                    {{ message }}
+                                  </div>
+                                </div>
+                                {% endfor %}
                             <div id="tab1" class="tab-pane fade in active">
-                                <h3 class="lead">My profile</h3>
-                                <ul class="list-group">
-                                    <li class="list-group-item"><b>Id:</b> {{ user.id }}</li>
-                                    <li class="list-group-item"><b>Username:</b> {{ user.username }}</li>
-                                    <li class="list-group-item"><b>Last Login:</b> {{ user.last_login|date:"d/m/Y H:i" }}</li>
-                                    <li class="list-group-item"><b>Data joined:</b> {{ user.date_joined|date:"d/m/Y H:i" }}</li>
-                                    <li class="list-group-item"><b>Email:</b> {{ user.email }}</li>
-                                    <li class="list-group-item"><b>Company:</b> {{ user.company }}</li>
-                                    <li class="list-group-item"><b>Position:</b> {{ user.position }}</li>
-                                    <li class="list-group-item"><b>User type:</b> {{ user.type }}</li>
-                                    {% if user.type == 'shop' %}
-                                    <li class="list-group-item"><b>Shop:</b> {{ user.shop.name }}</li>
-                                    {% endif %}
-                                    <li class="list-group-item"><b>Is active:</b> {% if user.is_active is True %}YES{% else %}NO{% endif %}</li>
-                                    <li class="list-group-item"><b>Is staff:</b> {% if user.is_staff is True %}YES{% else %}NO{% endif %}</li>
-                                    <li class="list-group-item"><b>Is superuser:</b> {% if user.is_superuser is True %}YES{% else %}NO{% endif %}</li>
-                                </ul>
+                                <div class="billing-details">
+                                    <div class="section-title">
+                                        <h3 class="title">My profile</h3>
+                                       </div>
+                                    <b>Is active:</b> {% if user.is_active is True %}<i class="fa fa-check" style="color:#00FF00"></i>{% else %}<i class="fa fa-xmark" style="color:#FF0000"></i>{% endif %}
+                                    <b>Is staff:</b> {% if user.is_staff is True %}<i class="fa fa-check" style="color:#00FF00"></i>{% else %}<i class="fa fa-xmark" style="color:#FF0000"></i>{% endif %}
+                                    <b>Is superuser:</b> {% if user.is_superuser is True %}<i class="fa fa-check" style="color:#00FF00"></i>{% else %}<i class="fa fa-xmark" style="color:#FF0000"></i>{% endif %}
+                                    <br><br>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        Id:
+                                        <div class="form-group">
+                                            <input class="input" type="text" placeholder="{{ user.id }}" disabled>
+                                        </div>
+                                        Username:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="username" placeholder="{{ user.username }}">
+                                        </div>
+                                        User type:
+                                        <div class="form-group">
+                                            <input class="input" type="text" placeholder="{{ user.type }}" disabled>
+                                        </div>
+                                        {% if user.type == 'shop' %}
+                                        Shop:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="shop_name" placeholder="{{ user.shop.name }}">
+                                        </div>
+                                        Shop website:
+                                        <div class="form-group">
+                                            <input class="input" type="url" name="shop_url" placeholder="{{ user.shop.url }}">
+                                        </div>
+                                        {% endif %}
+                                        Last Login:
+                                        <div class="form-group">
+                                            <input class="input" type="text" placeholder="{{ user.last_login|date:'d/m/Y H:i' }}" disabled>
+                                        </div>
+                                        Data joined:
+                                        <div class="form-group">
+                                            <input class="input" type="text" placeholder="{{ user.date_joined|date:'d/m/Y H:i' }}" disabled>
+                                        </div>
+                                        Email:
+                                        <div class="form-group">
+                                            <input class="input" type="email" name="email" placeholder="{{ user.email }}">
+                                        </div>
+                                        Company:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="company" placeholder="{{ user.company }}">
+                                        </div>
+                                        Position:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="position" placeholder="{{ user.position }}">
+                                        </div>
+                                            *edit profile before tap button<br>
+                                    <button class="primary-btn-ltl">Change profile</button>
+                                    </form>
+                                </div>
                             </div>
                             <div id="tab2" class="tab-pane fade in">
-                                <h3 class="lead">My contact</h3>
-                                <ul class="list-group">
-                                    <li class="list-group-item"><b>City:</b> {{ contact.city }}</li>
-                                    <li class="list-group-item"><b>Street:</b> {{ contact.street }}</li>
-                                    <li class="list-group-item"><b>House:</b> {{ contact.house }}</li>
-                                    <li class="list-group-item"><b>Structure:</b> {{ contact.structure }}</li>
-                                    <li class="list-group-item"><b>Building:</b> {{ contact.building }}</li>
-                                    <li class="list-group-item"><b>Apartment:</b> {{ contact.apartment }}</li>
-                                    <li class="list-group-item"><b>Phone:</b> {{ contact.phone }}</li>
-                                </ul>
+                                <div class="billing-details">
+                                    <div class="section-title">
+                                        <h3 class="title">My contact</h3>
+                                    </div>
+                                    <form method="POST">
+                                        {% csrf_token %}
+                                        City:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="contact_city" placeholder="{{ contact.city }}">
+                                        </div>
+                                        Street:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="contact_street" placeholder="{{ contact.street }}">
+                                        </div>
+                                        House:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="contact_house" placeholder="{{ contact.house }}" >
+                                        </div>
+                                        Structure:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="contact_structure" placeholder="{{ contact.structure }}">
+                                        </div>
+                                        Building:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="contact_building" placeholder="{{ contact.building }}">
+                                        </div>
+                                        Apartment:
+                                        <div class="form-group">
+                                            <input class="input" type="text" name="contact_apartment" placeholder="{{ contact.apartment }}">
+                                        </div>
+                                        Phone:
+                                        <div class="form-group">
+                                            <input class="input" type="tel" name="contact_phone" placeholder="{{ contact.phone }}">
+                                        </div>
+                                        *edit contact before tap button<br>
+                                        <button class="primary-btn-ltl">Change contact</button>
+                                    </form>
+                                </div>
                             </div>
                             <div id="tab3" class="tab-pane fade in">
-                                <h3 class="lead">My orders</h3>
-                                {% if orders %}
-                                <table class="table">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">№</th>
-                                        <th scope="col">Order ID</th>
-                                        <th scope="col">Items Count</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Created</th>
-                                        <th scope="col">Updated</th>
-                                        <th scope="col">Active</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for order in orders%}
-                                    <tr class="clickable-row" data-href="{% url 'authorization:show_order' order.id %}">
-                                        <th scope="row">{{ forloop.counter }}</th>
-                                        <td class="text-center">{{ order.id }}</td>
-                                        <td class="text-center">{{ order.total_items_count }}</td>
-                                        <td>{{ order.status }}</td>
-                                        <td>{{ order.created|date:"d/m/Y H:i" }}</td>
-                                        <td>{{ order.updated|date:"d/m/Y H:i" }}</td>
-                                        <td class="text-center">{% if order.is_active is True %}YES{% else %}NO{% endif %}</td>
-                                    </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                                {% else %}
-                                NO ORDERS!
-                                {% endif %}
-                                <div id="modals-here"></div>
+                                <div class="billing-details">
+                                    <div class="section-title">
+                                        <h3 class="title">My orders</h3>
+                                    </div>
+                                    {% if orders %}
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">№</th>
+                                            <th scope="col">Order ID</th>
+                                            <th scope="col">Items Count</th>
+                                            <th scope="col">Status</th>
+                                            <th scope="col">Created</th>
+                                            <th scope="col">Updated</th>
+                                            <th scope="col">Active</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for order in orders%}
+                                        <tr class="clickable-row" data-href="{% url 'authorization:show_order' order.id %}">
+                                            <th scope="row">{{ forloop.counter }}</th>
+                                            <td class="text-center">{{ order.id }}</td>
+                                            <td class="text-center">{{ order.total_items_count }}</td>
+                                            <td>{{ order.status }}</td>
+                                            <td>{{ order.created|date:"d/m/Y H:i" }}</td>
+                                            <td>{{ order.updated|date:"d/m/Y H:i" }}</td>
+                                            <td class="text-center">{% if order.is_active is True %}<i class="fa fa-check" style="color:#00FF00"></i>{% else %}<i class="fa fa-xmark" style="color:#FF0000"></i>{% endif %}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% else %}
+                                    NO ORDERS!
+                                    {% endif %}
+                                </div>
                             </div>
                             <div id="tab4" class="tab-pane fade in">
-                                  <h3 class="lead">My reviews</h3>
-                                   {% if reviews %}
-                                  <table class="table">
-                                      <thead>
-                                      <tr>
-                                          <th scope="col">№</th>
-                                          <th scope="col">Product</th>
-                                          <th scope="col">Review Text</th>
-                                          <th scope="col">Review rating</th>
-                                          <th scope="col">Posted</th>
-                                      </tr>
-                                      </thead>
-                                      <tbody>
-                                      {% for review in reviews%}
-                                      <tr>
-                                          <th scope="row">{{ forloop.counter }}</th>
-                                          <td><a href="{% url 'backend:product_info' review.product.id %}">{{ review.product.name }}</a></td>
-                                          <td>{{ review.text }}</td>
-                                          <td style="width: 15%">
-                                                  {% if review.rating %}
-                                                  {% for n in review.rating|get_range %}
-                                                  <i class="fa fa-star" style="color:#D10024"></i>
-                                                  {% endfor %}
-                                                  {% endif %}
-                                          </td>
-                                          <td>{{ review.posted }}</td>
-                                      </tr>
-                                      {% endfor %}
-                                      </tbody>
-                                  </table>
-                                  {% else %}
-                                  NO ORDERS!
-                                  {% endif %}
+                                <div class="billing-details">
+                                    <div class="section-title">
+                                        <h3 class="title">My reviews</h3>
+                                    </div>
+                                    {% if reviews %}
+                                    <table class="table">
+                                        <thead>
+                                        <tr>
+                                            <th scope="col">№</th>
+                                            <th scope="col">Product</th>
+                                            <th scope="col">Review Text</th>
+                                            <th scope="col">Review rating</th>
+                                            <th scope="col">Posted</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for review in reviews%}
+                                        <tr>
+                                            <th scope="row">{{ forloop.counter }}</th>
+                                            <td><a href="{% url 'backend:product_info' review.product.id %}">{{ review.product.name }}</a></td>
+                                            <td>{{ review.text }}</td>
+                                            <td style="width: 15%">
+                                                {% if review.rating %}
+                                                {% for n in review.rating|get_range %}
+                                                <i class="fa fa-star" style="color:#D10024"></i>
+                                                {% endfor %}
+                                                {% endif %}
+                                            </td>
+                                            <td style="width: 15%">{{ review.posted|date:'d/m/Y H:i' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    {% else %}
+                                    NO REVIEWS!
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                       </div>

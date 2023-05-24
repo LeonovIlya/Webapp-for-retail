@@ -2,10 +2,11 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Sum
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db.utils import IntegrityError
 from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -17,7 +18,7 @@ from .forms import RegisterForm
 from .models import Comment, Contact, User
 from .serializers import UserRegSerializer, ContactSerializer
 
-from backend.models import Order, OrderItem, Product, ProductInfo
+from backend.models import Order, OrderItem, Product, ProductInfo, Shop
 
 
 def profileView(request):
@@ -148,6 +149,87 @@ class ProfileView(LoginRequiredMixin, APIView):
             'reviews': reviews
         }
         return Response(data)
+
+    def post(self, request, *args, **kwargs):
+
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        shop_name = request.POST.get('shop_name')
+        shop_url = request.POST.get('shop_url')
+        company = request.POST.get('company')
+        position = request.POST.get('position')
+        contact_city = request.POST.get('contact_city')
+        contact_street = request.POST.get('contact_street')
+        contact_house = request.POST.get('contact_house')
+        contact_structure = request.POST.get('contact_structure')
+        contact_building = request.POST.get('contact_building')
+        contact_apartment = request.POST.get('contact_apartment')
+        contact_phone = request.POST.get('contact_phone')
+
+        try:
+            user = User.objects.get(id=self.request.user.id)
+        except:
+            messages.error(request, 'Something WRONG!')
+            return redirect('authorization:profile')
+
+        try:
+            shop = Shop.objects.get(user=self.request.user)
+        except:
+            messages.error(request, 'Something WRONG!')
+            return redirect('authorization:profile')
+
+        try:
+            contact = Contact.objects.get(user=self.request.user)
+        except:
+            messages.error(request, 'Something WRONG!')
+            return redirect('authorization:profile')
+
+        if username:
+            user.username = username
+        if email:
+            user.email = email
+        if company:
+            user.company = company
+        if position:
+            user.position = position
+        try:
+            user.save()
+        except IntegrityError as e:
+            messages.error(request, e)
+            return redirect('authorization:profile')
+
+        if shop_url:
+            shop.url = shop_url
+        if shop_name:
+            shop.name = shop_name
+        try:
+            shop.save()
+        except IntegrityError as e:
+            messages.error(request, e)
+            return redirect('authorization:profile')
+
+        if contact_city:
+            contact.city = contact_city
+        if contact_street:
+            contact.street = contact_street
+        if contact_house:
+            contact.house = contact_house
+        if contact_structure:
+            contact.structure = contact_structure
+        if contact_building:
+            contact.building = contact_building
+        if contact_apartment:
+            contact.apartment = contact_apartment
+        if contact_phone:
+            contact.phone = contact_phone
+        try:
+            contact.save()
+        except IntegrityError as e:
+            messages.error(request, e)
+            return redirect('authorization:profile')
+
+        messages.success(request, 'You have change profile successfully!')
+        return redirect('authorization:profile')
 
 
 class CartView(LoginRequiredMixin, APIView):

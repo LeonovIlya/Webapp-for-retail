@@ -71,7 +71,6 @@ class ProductFactory(factory.django.DjangoModelFactory):
         model = Product
 
     name = factory.Faker('catch_phrase')
-    category = factory.fuzzy.FuzzyChoice(Category.objects.all())
 
     @factory.post_generation
     def parameters(self, create, *kwargs):
@@ -88,6 +87,7 @@ class ProductInfoFactory(factory.django.DjangoModelFactory):
 
     model = factory.Faker('nic_handle')
     brand = factory.fuzzy.FuzzyChoice(Brand.objects.all())
+    category = factory.fuzzy.FuzzyChoice(Category.objects.all())
     quantity = factory.Faker('random_digit_not_null')
     price = factory.Faker('port_number')
     price_rrc = factory.Faker('port_number')

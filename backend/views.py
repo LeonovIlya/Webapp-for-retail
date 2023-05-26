@@ -8,7 +8,6 @@ from django.db.models import Q, Sum, F, Avg, Max, Min
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
-from decimal import Decimal as D
 
 from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
@@ -37,7 +36,8 @@ from .serializers import CategorySerializer, ShopSerializer, \
 class RegisterAccount(APIView):
     throttle_scope = 'anon'
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if {'first_name', 'last_name', 'email', 'password', 'company',
             'position'}.issubset(request.data):
             errors = {}
@@ -68,7 +68,8 @@ class RegisterAccount(APIView):
 class ConfirmAccount(APIView):
     throttle_scope = 'anon'
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if {'email', 'token'}.issubset(request.data):
 
             token = ConfirmEmailToken.objects.filter(
@@ -90,7 +91,8 @@ class ConfirmAccount(APIView):
 class LoginAccount(APIView):
     throttle_scope = 'anon'
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if {'email', 'password'}.issubset(request.data):
             user = authenticate(request, username=request.data['email'],
                                 password=request.data['password'])
@@ -111,14 +113,16 @@ class LoginAccount(APIView):
 class AccountDetails(APIView):
     throttle_scope = 'user'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Login required'},
                             status=status.HTTP_403_FORBIDDEN)
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Login required'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -176,7 +180,8 @@ class ProductsInfoView(viewsets.ReadOnlyModelViewSet):
 class BasketView(APIView):
     throttle_scope = 'user'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -189,7 +194,8 @@ class BasketView(APIView):
         serializer = OrderSerializer(basket, many=True)
         return Response(serializer.data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -224,7 +230,8 @@ class BasketView(APIView):
         return JsonResponse({'Status': False,
                              'Errors': 'Не указаны все необходимые аргументы'})
 
-    def delete(self, request, *args, **kwargs):
+    @staticmethod
+    def delete(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -247,7 +254,8 @@ class BasketView(APIView):
         return JsonResponse({'Status': False,
                              'Errors': 'Не указаны все необходимые аргументы'})
 
-    def put(self, request, *args, **kwargs):
+    @staticmethod
+    def put(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -280,7 +288,8 @@ class BasketView(APIView):
 class OrderView(APIView):
     throttle_scope = 'user'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Log in required'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -295,7 +304,8 @@ class OrderView(APIView):
         serializer = OrderSerializer(order, many=True)
         return Response(serializer.data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Log in required'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -325,7 +335,8 @@ class OrderView(APIView):
 class ContactView(APIView):
     throttle_scope = 'user'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -334,7 +345,8 @@ class ContactView(APIView):
         serializer = ContactSerializer(contact, many=True)
         return Response(serializer.data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -351,7 +363,8 @@ class ContactView(APIView):
         return JsonResponse({'Status': False,
                              'Errors': 'Не указаны все необходимые аргументы'})
 
-    def delete(self, request, *args, **kwargs):
+    @staticmethod
+    def delete(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -372,7 +385,8 @@ class ContactView(APIView):
         return JsonResponse({'Status': False,
                              'Errors': 'Не указаны все необходимые аргументы'})
 
-    def put(self, request, *args, **kwargs):
+    @staticmethod
+    def put(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return JsonResponse({'Status': False, 'Error': 'Log in required'},
                                 status=status.HTTP_403_FORBIDDEN)
@@ -397,7 +411,8 @@ class ContactView(APIView):
 class PartnerOrders(APIView):
     throttle_scope = 'user'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Login required'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -421,7 +436,8 @@ class PartnerOrders(APIView):
 class PartnerState(APIView):
     throttle_scope = 'user'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Login required'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -432,7 +448,8 @@ class PartnerState(APIView):
         serializer = ShopSerializer(shop)
         return Response(serializer.data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Log in required'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -456,7 +473,8 @@ class PartnerState(APIView):
 class PartnerUpdate(APIView):
     throttle_scope = 'partner'
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if not request.user.is_authenticated:
             return Response({'Status': False, 'Error': 'Log in required'},
                             status=status.HTTP_403_FORBIDDEN)
@@ -477,66 +495,63 @@ class IndexView(APIView):
     renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = 'store.html'
 
-    def get(self, request, *args, **kwargs):
-        if request.accepted_renderer.format == 'html':
+    @staticmethod
+    def get(request, *args, **kwargs):
 
-            price_min_abs = ProductInfo.objects.aggregate(Min('price'))[
-                'price__min']
-            price_max_abs = ProductInfo.objects.aggregate(Max('price'))[
-                'price__max']
+        category_vars = set(request.GET.getlist('category'))
+        brand_vars = set(request.GET.getlist('brand'))
+        price_min = request.GET.get('min_price')
+        price_max = request.GET.get('max_price')
+        paginate_by = request.GET.get('paginate_by', 20)
+        sort_by = request.GET.get('sort_by', 'id')
+        page = request.GET.get('page')
 
-            price_min = D(request.GET.get('min_price', 0))
+        price_min_abs = ProductInfo.objects.aggregate(Min('price'))[
+            'price__min']
+        price_max_abs = ProductInfo.objects.aggregate(Max('price'))[
+            'price__max']
+        categories = Category.objects.all()
+        brands = Brand.objects.all()
+        products = ProductInfo.objects.all()
 
-            if not price_min:
-                price_min = price_min_abs
+        if category_vars:
+            products = products.filter(category__in=category_vars)
+        if brand_vars:
+            products = products.filter(brand__in=brand_vars)
+        if price_min or price_max:
+            products = products.filter(price__range=(price_min, price_max))
 
-            price_max = D(request.GET.get('max_price', 0))
+        try:
+            cart_count = Order.objects.filter(status='new').values_list(
+                'total_items_count', flat=True).get(user=request.user)
+        except (Order.DoesNotExist, TypeError):
+            cart_count = None
 
-            if not price_max:
-                price_max = price_max_abs
+        sorted_products = products.order_by(sort_by)
+        paginator = Paginator(sorted_products, paginate_by)
 
-            products = ProductInfo.objects.filter(price__range=(price_min,
-                                                                price_max))
-            categories = Category.objects.all()
-            brands = Brand.objects.all()
+        try:
+            products_info = paginator.get_page(page)
+        except PageNotAnInteger:
+            products_info = paginator.get_page(1)
+        except EmptyPage:
+            products_info = paginator.page(paginator.num_pages)
 
-            try:
-                cart_count = Order.objects.filter(status='new').values_list(
-                    'total_items_count', flat=True).get(user=request.user)
-            except:
-                cart_count = None
-
-            paginate_by = request.GET.get('paginate_by', 20)
-            sort_by = request.GET.get('sort_by', 'id')
-            sorted_products = products.order_by(sort_by)
-
-            paginator = Paginator(sorted_products, paginate_by)
-            page = request.GET.get('page')
-
-            try:
-                products_info = paginator.get_page(page)
-            except PageNotAnInteger:
-                products_info = paginator.get_page(1)
-            except EmptyPage:
-                products_info = paginator.page(paginator.num_pages)
-
-            data = {
-                'products': products,
-                'products_info': products_info,
-                'categories': categories,
-                'brands': brands,
-                'paginate_by': paginate_by,
-                'sort_by': sort_by,
-                'cart_count': cart_count,
-                'price_min': price_min,
-                'price_max': price_max,
-                'price_min_abs': price_min_abs,
-                'price_max_abs': price_max_abs
-            }
-            return Response(data)
-
-        serializer = ProductInfoSerializer(instance=products)
-        data = serializer.data
+        data = {
+            'products': products,
+            'products_info': products_info,
+            'categories': categories,
+            'brands': brands,
+            'paginate_by': paginate_by,
+            'sort_by': sort_by,
+            'cart_count': cart_count,
+            'price_min': price_min,
+            'price_max': price_max,
+            'price_min_abs': price_min_abs,
+            'price_max_abs': price_max_abs,
+            'category_vars': category_vars,
+            'brand_vars': brand_vars
+        }
         return Response(data)
 
 
@@ -556,7 +571,7 @@ class ProductInfoView(APIView):
         try:
             cart_count = Order.objects.filter(status='new').values_list(
                 'total_items_count', flat=True).get(user=self.request.user)
-        except:
+        except (Order.DoesNotExist, TypeError):
             cart_count = None
         serializer = ProductInfoSerializer(instance=product_info)
 
@@ -574,7 +589,8 @@ class ProductInfoView(APIView):
         data = serializer.data
         return Response(data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         text = request.POST.get('text')
         if not text:
             messages.error(request, 'Need text to add review')
@@ -589,8 +605,7 @@ class ProductInfoView(APIView):
             user=User.objects.get(id=request.data['user']),
             text=text,
             product=Product.objects.get(id=request.data['product']),
-            rating=rating
-        )
+            rating=rating)
         new_comment.save()
         return redirect("backend:product_info",
                         product_id=request.data['product'])

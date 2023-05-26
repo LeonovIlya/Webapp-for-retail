@@ -4,9 +4,9 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db.models import Sum
+from django.db.utils import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
-from django.db.utils import IntegrityError
 from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -52,16 +52,18 @@ class RestrictedApiView(APIView):
 
 @permission_classes([IsAuthenticated])
 class ContactView(APIView):
-    def get(self, request):
+    @staticmethod
+    def get(request):
         try:
             contact = Contact.objects.get(user=request.user)
             serializer = ContactSerializer(contact)
-        except:
+        except Contact.DoesNotExist:
             return Response({'response': f'{request.user} has no contacts. '
                                          f'You can make PUT request'})
         return Response(serializer.data)
 
-    def put(self, request):
+    @staticmethod
+    def put(request):
         contact, _ = Contact.objects.get_or_create(user=request.user)
         serializer = ContactSerializer(contact, request.data)
         if serializer.is_valid():
@@ -74,10 +76,12 @@ class ContactView(APIView):
 class LoginView(APIView):
     template_name = 'login.html'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         return Response()
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         email = request.data['email']
         password = request.data['password']
         user = authenticate(email=email, password=password)
@@ -92,7 +96,8 @@ class LoginView(APIView):
 class RegistrationView(APIView):
     template_name = 'register.html'
 
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('authorization:profile')
         else:
@@ -102,7 +107,8 @@ class RegistrationView(APIView):
             }
             return Response(data)
 
-    def post(self, request, *args, **kwargs):
+    @staticmethod
+    def post(request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('authorization:profile')
         else:
@@ -128,14 +134,14 @@ class ProfileView(LoginRequiredMixin, APIView):
         try:
             cart_count = Order.objects.filter(status='new').values_list(
                 'total_items_count', flat=True).get(user=self.request.user)
-        except:
+        except (Order.DoesNotExist, TypeError):
             cart_count = None
 
         user = User.objects.get(id=self.request.user.id)
 
         try:
             contact = Contact.objects.get(user=self.request.user)
-        except:
+        except Contact.DoesNotExist:
             contact = None
 
         orders = Order.objects.filter(user=self.request.user)
@@ -168,19 +174,19 @@ class ProfileView(LoginRequiredMixin, APIView):
 
         try:
             user = User.objects.get(id=self.request.user.id)
-        except:
+        except User.DoesNotExist:
             messages.error(request, 'Something WRONG!')
             return redirect('authorization:profile')
 
         try:
             shop = Shop.objects.get(user=self.request.user)
-        except:
+        except User.DoesNotExist:
             messages.error(request, 'Something WRONG!')
             return redirect('authorization:profile')
 
         try:
             contact = Contact.objects.get(user=self.request.user)
-        except:
+        except User.DoesNotExist:
             messages.error(request, 'Something WRONG!')
             return redirect('authorization:profile')
 
@@ -246,7 +252,7 @@ class CartView(LoginRequiredMixin, APIView):
             try:
                 cart_count = Order.objects.filter(status='new').values_list(
                     'total_items_count', flat=True).get(user=self.request.user)
-            except Order.DoesNotExist:
+            except (Order.DoesNotExist, TypeError):
                 cart_count = None
 
             data = {
@@ -279,7 +285,7 @@ class OrderView(LoginRequiredMixin, APIView):
             try:
                 cart_count = Order.objects.filter(status='new').values_list(
                     'total_items_count', flat=True).get(user=self.request.user)
-            except Order.DoesNotExist:
+            except (Order.DoesNotExist, TypeError):
                 cart_count = None
 
             data = {
@@ -306,7 +312,8 @@ def add_to_cart(request, product_id):
                                 pk=product_id)
     product_info = get_object_or_404(ProductInfo,
                                      product=product)
-    if product_info.quantity >= 1:
+
+    if quantity >= product_info.quantity:
         order, created = Order.objects.get_or_create(status='new',
                                                      is_active=True,
                                                      user=request.user,
@@ -314,7 +321,7 @@ def add_to_cart(request, product_id):
                                                      first())
         order_item, created = OrderItem.objects.get_or_create(
             brand=product_info.brand,
-            category=product.category,
+            category=product_info.category,
             product=product,
             order=order,
             shop=product_info.shop)

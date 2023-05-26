@@ -87,11 +87,6 @@ class Parameter(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=100,
                             verbose_name='Название товара')
-    category = models.ForeignKey(Category,
-                                 verbose_name='Категория',
-                                 related_name='products',
-                                 blank=True,
-                                 on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/',
                               null=True,
                               blank=True)
@@ -129,6 +124,11 @@ class ProductInfo(models.Model):
                               related_name='product_info',
                               blank=True,
                               on_delete=models.CASCADE)
+    category = models.ForeignKey(Category,
+                                 verbose_name='Категория',
+                                 related_name='product_info',
+                                 blank=True,
+                                 on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
     price = models.PositiveIntegerField(verbose_name='Цена')
     price_rrc = models.PositiveIntegerField(verbose_name='Рекомендуемая '

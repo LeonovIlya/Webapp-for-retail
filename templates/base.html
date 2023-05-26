@@ -47,10 +47,10 @@
 						<li><a href="tel:+012-34-56-789"><i class="fa fa-phone"></i> +012-34-56-789</a></li>
 						<li><a href="mailto: email@email.com "><i class="fa fa-envelope-o"></i> email@email.com</a></li>
 						<li><a href="https://www.google.com/maps/search/?api=1&query=London+Abbey road+3" target=”_blank”><i class="fa fa-map-marker"></i> London, Abbey road, 3</a></li>
-						<li><a href="#"><i class="fa fa-calendar"></i> Current datetime: {% now "jS F Y H:i" %}</a></li>
+						<li style="color:#FFF"><i class="fa fa-calendar"></i> Current datetime: {% now "jS F Y H:i" %}</li>
 					</ul>
 					<ul class="header-links pull-right">
-						<li><a href="#"><i class="fa fa-rub"></i> RUB</a></li>
+						<li style="color:#FFF"><i class="fa fa-rub"></i> RUB</li>
 						 {% if user.is_authenticated %}
 						<li><a href="{% url 'authorization:profile' %}">{{ user.username }}</a></li>
 						<li><a href="{% url 'authorization:logout' %}">Logout</a></li>

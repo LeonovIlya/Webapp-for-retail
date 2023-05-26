@@ -24,15 +24,14 @@ class ShopAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ['id', 'name', 'category', 'image']
-    list_filter = ['category']
+    list_display = ['id', 'name', 'image']
 
 
 @admin.register(ProductInfo)
 class ShopAdmin(admin.ModelAdmin):
-    list_display = ['id', 'brand', 'product', 'model', 'shop', 'quantity',
-                    'price', 'price_rrc']
-    list_filter = ['brand', 'shop']
+    list_display = ['id', 'brand', 'category', 'product', 'model', 'shop',
+                    'quantity', 'price', 'price_rrc']
+    list_filter = ['brand', 'category', 'shop']
 
 
 @admin.register(Parameter)

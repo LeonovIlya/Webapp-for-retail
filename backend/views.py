@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import IntegrityError
@@ -566,8 +567,7 @@ class ProductInfoView(APIView):
             product_id=product_id)
         comments = Comment.objects.filter(product_id=product_id).order_by(
             '-posted')
-        avg_rating = Comment.objects.filter(
-            product_id=product_id).aggregate(Avg('rating'))['rating__avg']
+
         try:
             cart_count = Order.objects.filter(status='new').values_list(
                 'total_items_count', flat=True).get(user=self.request.user)
@@ -581,7 +581,6 @@ class ProductInfoView(APIView):
                 'product_info': product_info,
                 'parameters': parameters,
                 'comments': comments,
-                'avg_rating': avg_rating,
                 'cart_count': cart_count
             }
             return Response(data)
@@ -591,21 +590,97 @@ class ProductInfoView(APIView):
 
     @staticmethod
     def post(request, *args, **kwargs):
-        text = request.POST.get('text')
-        if not text:
-            messages.error(request, 'Need text to add review')
+        if request.POST.get('form_name') == 'add_review':
+            text = request.POST.get('text')
+            if not text:
+                messages.error(request, 'Need text to add review')
+                return redirect("backend:product_info",
+                                product_id=request.data['product'])
+            rating = request.POST.get('rating')
+            if not rating:
+                messages.error(request, 'Need rating to add review')
+                return redirect("backend:product_info",
+                                product_id=request.data['product'])
+            new_comment = Comment.objects.create(
+                user=User.objects.get(id=request.data['user']),
+                text=text,
+                product=Product.objects.get(id=request.data['product']),
+                rating=rating)
+            new_comment.save()
             return redirect("backend:product_info",
                             product_id=request.data['product'])
-        rating = request.POST.get('rating')
-        if not rating:
-            messages.error(request, 'Need rating to add review')
+        elif request.POST.get('form_name') == 'add_to_cart':
+            product_id = int(request.POST.get('product'))
+            quantity = int(request.POST.get('quantity'))
+            add_to_cart(request=request,
+                        product_id=product_id,
+                        quantity=quantity)
             return redirect("backend:product_info",
                             product_id=request.data['product'])
-        new_comment = Comment.objects.create(
-            user=User.objects.get(id=request.data['user']),
-            text=text,
-            product=Product.objects.get(id=request.data['product']),
-            rating=rating)
-        new_comment.save()
-        return redirect("backend:product_info",
-                        product_id=request.data['product'])
+
+@login_required
+def add_to_cart(request, product_id, quantity=1):
+    print(quantity)
+    product = get_object_or_404(Product,
+                                pk=product_id)
+    product_info = get_object_or_404(ProductInfo,
+                                     product=product)
+
+    if quantity <= int(product_info.quantity):
+        order, created = Order.objects.get_or_create(status='new',
+                                                     is_active=True,
+                                                     user=request.user,
+                                                     contact=request.user.contacts.
+                                                     first())
+        order_item, created = OrderItem.objects.get_or_create(
+            brand=product_info.brand,
+            category=product_info.category,
+            product=product,
+            order=order,
+            shop=product_info.shop)
+        order_item.quantity += quantity
+        order_item.save()
+
+        product_info.quantity -= quantity
+        product_info.save()
+        messages.success(request, 'Product added to cart successfully!')
+        return redirect(request.META.get('HTTP_REFERER',
+                                         'redirect_if_referer_not_found'))
+    else:
+        messages.error(request, 'SORRY, OUT OF STOCK OR TO MANY!')
+        return redirect(request.META.get('HTTP_REFERER',
+                                         'redirect_if_referer_not_found'))
+
+
+@login_required
+def remove_from_cart(request, item_id):
+    try:
+        order = Order.objects.filter(status='new',
+                                     is_active=True).get(user=request.user)
+        try:
+            order_item = OrderItem.objects.filter(order=order).get(id=item_id)
+            product = ProductInfo.objects.get(product=order_item.product)
+            product.quantity += order_item.quantity
+            order_item.delete()
+            product.save()
+            return redirect('authorization:cart')
+        except ObjectDoesNotExist:
+            messages.error(request, 'Something WRONG!')
+            return redirect('authorization:cart')
+    except ObjectDoesNotExist:
+        messages.error(request, 'Something WRONG!')
+        return redirect('authorization:cart')
+
+
+@login_required
+def place_order(request):
+    try:
+        order = Order.objects.filter(status='new',
+                                     is_active=True).get(user=request.user)
+        order.status = 'ordered'
+        order.save()
+        messages.success(request, 'Order was placed successfully!')
+        return redirect('authorization:cart')
+    except ObjectDoesNotExist:
+        messages.error(request, 'Something WRONG!')
+        return redirect('authorization:cart')

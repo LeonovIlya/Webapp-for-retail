@@ -121,10 +121,11 @@
 							<div class="col-md-4 col-xs-6">
 								<div class="product">
 									<div class="product-img">
-										<img src={% if pi.product.image %}
-											 		{{ pi.product.image.url }}
-											     {% else %}
-													"/media/products/blank.png"{% endif %} alt="">
+										<img src="{% if pi.product.image %}
+											 	  {{ pi.product.image.url }}
+											      {% else %}
+												  /media/products/blank.png
+										          {% endif %}" alt="">
 									</div>
 									<div class="product-body">
 										<p class="product-brand">{{ pi.brand.name }}</p>
@@ -132,16 +133,19 @@
 										<p class="product-category">{{ pi.category }}</p>
 										<h4 class="product-price">{{ pi.price }} ₽</h4>
 										<div class="product-rating">
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star"></i>
-											<i class="fa fa-star"></i>
+											{% if pi.product.average_rating %}
+											{{ pi.product.average_rating|floatformat }} <i class="fa fa-star"></i>
+											{% else %}
+											{% endif %}
 										</div>
 									</div>
 									<div class="add-to-cart">
 										{% if user.is_authenticated %}
-										<button class="add-to-cart-btn" onclick="location.href='{% url 'authorization:add_to_cart' pi.product_id %}'"><i class="fa fa-shopping-cart"></i>add to cart</button>
+											{% if pi.quantity|to_int == 0 %}
+											<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>OUT OF STOCK</button>
+											{% else%}
+											<button class="add-to-cart-btn" onclick="location.href='{% url 'backend:add_to_cart' pi.product_id %}'"><i class="fa fa-shopping-cart"></i>add to cart</button>
+											{% endif %}
 										{% endif %}
 									</div>
 								</div>

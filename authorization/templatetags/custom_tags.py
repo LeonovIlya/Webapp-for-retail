@@ -16,6 +16,15 @@ def query_transform(context, **kwargs):
     return query.urlencode()
 
 
+@register.simple_tag
+def get_percentage(a, b):
+    try:
+        result = format(float(a / b), ".2%")
+    except ZeroDivisionError:
+        result = 0
+    return result
+
+
 @register.filter()
 def to_int(value):
     return int(value)

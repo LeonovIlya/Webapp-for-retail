@@ -1,8 +1,9 @@
 from django.db import models
-from django.conf import settings
-from django.core.files.storage import FileSystemStorage
+from django.db.models import Avg
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 
 storage = FileSystemStorage(location=settings.STORAGE)
 
@@ -105,6 +106,30 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def average_rating(self):
+        return self.comments.all().aggregate(Avg('rating'))['rating__avg']
+
+    @property
+    def count_rating_five(self):
+        return self.comments.filter(rating=5).count()
+
+    @property
+    def count_rating_four(self):
+        return self.comments.filter(rating=4).count()
+
+    @property
+    def count_rating_three(self):
+        return self.comments.filter(rating=3).count()
+
+    @property
+    def count_rating_two(self):
+        return self.comments.filter(rating=2).count()
+
+    @property
+    def count_rating_one(self):
+        return self.comments.filter(rating=1).count()
 
 
 class ProductsParameters(models.Model):

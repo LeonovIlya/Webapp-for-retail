@@ -49,36 +49,37 @@
 
 							Email
 							<div class="form-group">
-								<input class="input" type="email" name="email" placeholder="{{ order.user.email }}">
+								<input class="input" type="email" name="email" placeholder="{{ order.user.email }}" disabled>
 							</div>
 							City
 							<div class="form-group">
-								<input class="input" type="text" name="city" placeholder="{{ order.contact.city }}">
+								<input class="input" type="text" name="city" placeholder="{{ order.contact.city }}" disabled>
 							</div>
 							Street
 							<div class="form-group">
-								<input class="input" type="text" name="street" placeholder="{{ order.contact.street }}">
+								<input class="input" type="text" name="street" placeholder="{{ order.contact.street }}" disabled>
 							</div>
 							House
 							<div class="form-group">
-								<input class="input" type="text" name="house" placeholder="{{ order.contact.house }}">
+								<input class="input" type="text" name="house" placeholder="{{ order.contact.house }}" disabled>
 							</div>
 							Structure
 							<div class="form-group">
-								<input class="input" type="text" name="structure" placeholder="{{ order.contact.structure }}">
+								<input class="input" type="text" name="structure" placeholder="{{ order.contact.structure }}" disabled>
 							</div>
 							Building
 							<div class="form-group">
-								<input class="input" type="text" name="building" placeholder="{{ order.contact.building }}">
+								<input class="input" type="text" name="building" placeholder="{{ order.contact.building }}" disabled>
 							</div>
 							Apartment
 							<div class="form-group">
-								<input class="input" type="text" name="apartment" placeholder="{{ order.contact.apartment }}">
+								<input class="input" type="text" name="apartment" placeholder="{{ order.contact.apartment }}" disabled>
 							</div>
 							Phone
 							<div class="form-group">
-								<input class="input" type="tel" name="phone" placeholder="{{ order.contact.phone}}">
+								<input class="input" type="tel" name="phone" placeholder="{{ order.contact.phone}}" disabled>
 							</div>
+							*You can change your shipping address in your profile settings.
 						</div>
 						<!-- /Billing Details -->
 					</div>
@@ -105,11 +106,11 @@
 								{% for product in products %}
 								<tr>
 									<th scope="row">{{ forloop.counter }}</th>
-									<td><a href="{% url 'backend:product_info' product.id %}">{{ product.product.name }}</a></td>
+									<td><a href="{% url 'backend:product_info' product.product.id %}">{{ product.product.name }}</a></td>
 									<td class="text-center">{{ product.quantity }}</td>
 									<td>{{ product.price_per_item|floatformat }} ₽</td>
 									<td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
-									<td><a href="{% url 'authorization:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
+									<td><a href="{% url 'backend:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
 								</tr>
 								{% endfor %}
 							  </tbody>
@@ -123,7 +124,7 @@
 								<div><strong class="order-total">{{ total_price.total_price__sum|floatformat }} ₽</strong></div>
 							</div>
 						</div>
-						<a href="{% url 'authorization:place_order' %}" class="primary-btn order-submit" type="submit">Place order</a>
+						<a href="{% url 'backend:place_order' %}" class="primary-btn order-submit" type="submit">Place order</a>
 						{% else %}
 						<h3>No products in your order!</h3>
 						{% endif %}

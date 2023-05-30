@@ -117,6 +117,7 @@ class RegistrationView(APIView):
                 user = form.save(commit=False)
                 user.username = user.username.lower()
                 user.save()
+                Contact.objects.create(user=user)
                 messages.success(request, 'You have registered successfully!')
                 login(request, user)
                 return redirect('backend:index')
@@ -138,12 +139,7 @@ class ProfileView(LoginRequiredMixin, APIView):
             cart_count = None
 
         user = User.objects.get(id=self.request.user.id)
-
-        try:
-            contact = Contact.objects.get(user=self.request.user)
-        except Contact.DoesNotExist:
-            contact = None
-
+        contact = Contact.objects.get(user=self.request.user)
         orders = Order.objects.filter(user=self.request.user)
         reviews = Comment.objects.filter(user=self.request.user)
 
@@ -178,17 +174,22 @@ class ProfileView(LoginRequiredMixin, APIView):
             messages.error(request, 'Something WRONG!')
             return redirect('authorization:profile')
 
-        try:
-            shop = Shop.objects.get(user=self.request.user)
-        except User.DoesNotExist:
-            messages.error(request, 'Something WRONG!')
-            return redirect('authorization:profile')
+        contact = Contact.objects.get(user=self.request.user)
 
-        try:
-            contact = Contact.objects.get(user=self.request.user)
-        except User.DoesNotExist:
-            messages.error(request, 'Something WRONG!')
-            return redirect('authorization:profile')
+        if self.request.user.type == 'shop':
+            try:
+                shop = Shop.objects.get(user=self.request.user)
+            except Shop.DoesNotExist:
+                shop = Shop.objects.create(user=self.request.user)
+            if shop_url:
+                shop.url = shop_url
+            if shop_name:
+                shop.name = shop_name
+            try:
+                shop.save()
+            except IntegrityError as e:
+                messages.error(request, e)
+                return redirect('authorization:profile')
 
         if username:
             user.username = username
@@ -200,16 +201,6 @@ class ProfileView(LoginRequiredMixin, APIView):
             user.position = position
         try:
             user.save()
-        except IntegrityError as e:
-            messages.error(request, e)
-            return redirect('authorization:profile')
-
-        if shop_url:
-            shop.url = shop_url
-        if shop_name:
-            shop.name = shop_name
-        try:
-            shop.save()
         except IntegrityError as e:
             messages.error(request, e)
             return redirect('authorization:profile')
@@ -304,64 +295,3 @@ class OrderView(LoginRequiredMixin, APIView):
 def logout_request(request):
     logout(request)
     return redirect('backend:index')
-
-
-@login_required
-def add_to_cart(request, product_id):
-    product = get_object_or_404(Product,
-                                pk=product_id)
-    product_info = get_object_or_404(ProductInfo,
-                                     product=product)
-
-    if quantity >= product_info.quantity:
-        order, created = Order.objects.get_or_create(status='new',
-                                                     is_active=True,
-                                                     user=request.user,
-                                                     contact=request.user.contacts.
-                                                     first())
-        order_item, created = OrderItem.objects.get_or_create(
-            brand=product_info.brand,
-            category=product_info.category,
-            product=product,
-            order=order,
-            shop=product_info.shop)
-        order_item.quantity += 1
-        order_item.save()
-        messages.success(request, 'Product added successfully!')
-        return redirect(request.META.get('HTTP_REFERER',
-                                         'redirect_if_referer_not_found'))
-    else:
-        messages.error(request, 'SORRY, OUT OF STOCK!')
-        return redirect(request.META.get('HTTP_REFERER',
-                                         'redirect_if_referer_not_found'))
-
-
-@login_required
-def remove_from_cart(request, item_id):
-    try:
-        order = Order.objects.filter(status='new',
-                                     is_active=True).get(user=request.user)
-        try:
-            product = OrderItem.objects.filter(order=order).get(id=item_id)
-            product.delete()
-            return redirect('authorization:cart')
-        except ObjectDoesNotExist:
-            messages.error(request, 'Something WRONG!')
-            return redirect('authorization:cart')
-    except ObjectDoesNotExist:
-        messages.error(request, 'Something WRONG!')
-        return redirect('authorization:cart')
-
-
-@login_required
-def place_order(request):
-    try:
-        order = Order.objects.filter(status='new',
-                                     is_active=True).get(user=request.user)
-        order.status = 'ordered'
-        order.save()
-        messages.success(request, 'Order was placed successfully!')
-        return redirect('authorization:cart')
-    except ObjectDoesNotExist:
-        messages.error(request, 'Something WRONG!')
-        return redirect('authorization:cart')

@@ -9,7 +9,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 from .views import CategoryView, ShopView, ProductsInfoView, BasketView, \
     OrderView, LoginAccount, ContactView, AccountDetails, ConfirmAccount, \
     RegisterAccount, PartnerOrders, PartnerState, PartnerUpdate, IndexView, \
-    ProductInfoView
+    ProductInfoView, add_to_cart, place_order, remove_from_cart
 
 app_name = 'backend'
 
@@ -48,6 +48,12 @@ urlpatterns = [
          name='index'),
     path('product/<int:product_id>', ProductInfoView.as_view(),
          name='product_info'),
+    path('remove_from_cart/<int:item_id>', remove_from_cart,
+         name='remove_from_cart'),
+    path('place_order', place_order,
+         name='place_order'),
+    path('add_to_cart/<int:product_id>', add_to_cart,
+         name='add_to_cart'),
 ]
 
 urlpatterns += router.urls

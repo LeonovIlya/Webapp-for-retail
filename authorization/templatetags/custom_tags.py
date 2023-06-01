@@ -1,4 +1,6 @@
 from django import template
+from django.utils.safestring import mark_safe
+import re
 
 register = template.Library()
 
@@ -33,3 +35,14 @@ def to_int(value):
 @register.filter()
 def to_str(value):
     return str(value)
+
+
+@register.filter()
+def highlight_search(text, value):
+    if text is not None:
+        text = str(text)
+        src_str = re.compile(value, re.IGNORECASE)
+        str_replaced = src_str.sub(f"<span class=\"highlight\">{value}</span>", text)
+    else:
+        str_replaced = ''
+    return mark_safe(str_replaced)

@@ -169,7 +169,7 @@
                                         </thead>
                                         <tbody>
                                         {% for order in orders%}
-                                        <tr class="clickable-row" data-href="{% if order.status == 'new'%}{% url 'authorization:cart' %}{% else %}{% url 'authorization:show_order' order.id %}{% endif %}">
+                                        <tr class="clickable-row" data-href="{% if order.status == 'new'%}{% url 'backend:cart' %}{% else %}{% url 'authorization:show_order' order.id %}{% endif %}">
                                             <th scope="row">{{ forloop.counter }}</th>
                                             <td class="text-center">{{ order.id }}</td>
                                             <td class="text-center">{{ order.total_items_count }}</td>

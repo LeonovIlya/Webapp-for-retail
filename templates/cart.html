@@ -96,7 +96,7 @@
 								<tr>
 									<th scope="col">№</th>
 									<th scope="col">Product</th>
-									<th scope="col">QTY</th>
+									<th scope="col" class="text-center">QTY</th>
 									<th style="width: 18%" scope="col">Price</th>
 									<th style="width: 18%" scope="col">Total</th>
 									<th scope="col"></th>
@@ -107,7 +107,17 @@
 								<tr>
 									<th scope="row">{{ forloop.counter }}</th>
 									<td><a href="{% url 'backend:product_info' product.product.id %}">{{ product.product.name }}</a></td>
-									<td class="text-center">{{ product.quantity }}</td>
+									<td class="text-center">
+									<form method="POST">
+										{% csrf_token %}
+											<div>
+												<input type="hidden" name="form_name" value="change_quantity">
+												<input type="hidden" name='product_id' value="{{ product.product.id }}">
+												<input type="number" style="width: 50%;" value="{{ product.quantity }}" id="quantity" name="quantity">
+												<button type="submit">Change</button>
+											</div>
+									</form>
+									</td>
 									<td>{{ product.price_per_item|floatformat }} ₽</td>
 									<td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
 									<td><a href="{% url 'backend:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
@@ -124,7 +134,11 @@
 								<div><strong class="order-total">{{ total_price.total_price__sum|floatformat }} ₽</strong></div>
 							</div>
 						</div>
-						<a href="{% url 'backend:place_order' %}" class="primary-btn order-submit" type="submit">Place order</a>
+						<form method="POST">
+							{% csrf_token %}
+							<input type="hidden" name="form_name" value="place_order">
+							<button class="primary-btn order-submit" type="submit">Place order</button>
+						</form>
 						{% else %}
 						<h3>No products in your order!</h3>
 						{% endif %}

@@ -2,7 +2,11 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import Comment, User, USER_TYPE_CHOICES
+from .models import Comment, User
+
+USER_TYPE_CHOICES = (
+    ('shop', 'Магазин'),
+    ('buyer', 'Покупатель'))
 
 
 class UserAdminCreationForm(UserCreationForm):

@@ -21,20 +21,20 @@ from .serializers import UserRegSerializer, ContactSerializer
 from backend.models import Order, OrderItem, Product, ProductInfo, Shop
 
 
-def profileView(request):
-    template = 'accounts/index.html'
-    context = {'user': request.user}
-    return render(request, template, context)
-
-
-@permission_classes([IsAuthenticated, ])
-class RestrictedApiView(APIView):
-    def get(self, request, *args, **kwargs):
-        if request.user.type == 'buyer':
-            data = f'{request.user}, Вы покупатель'
-        elif request.user.type == 'shop':
-            data = f'{request.user}, Вы продавец'
-        return Response(data)
+# def profileView(request):
+#     template = 'accounts/index.html'
+#     context = {'user': request.user}
+#     return render(request, template, context)
+#
+#
+# @permission_classes([IsAuthenticated, ])
+# class RestrictedApiView(APIView):
+#     def get(self, request, *args, **kwargs):
+#         if request.user.type == 'buyer':
+#             data = f'{request.user}, Вы покупатель'
+#         elif request.user.type == 'shop':
+#             data = f'{request.user}, Вы продавец'
+#         return Response(data)
 
 
 # class RegistrationView(APIView):
@@ -50,27 +50,27 @@ class RestrictedApiView(APIView):
 #         return Response(data)
 
 
-@permission_classes([IsAuthenticated])
-class ContactView(APIView):
-    @staticmethod
-    def get(request):
-        try:
-            contact = Contact.objects.get(user=request.user)
-            serializer = ContactSerializer(contact)
-        except Contact.DoesNotExist:
-            return Response({'response': f'{request.user} has no contacts. '
-                                         f'You can make PUT request'})
-        return Response(serializer.data)
-
-    @staticmethod
-    def put(request):
-        contact, _ = Contact.objects.get_or_create(user=request.user)
-        serializer = ContactSerializer(contact, request.data)
-        if serializer.is_valid():
-            serializer.save()
-        else:
-            raise serializer.errors
-        return Response(serializer.data)
+# @permission_classes([IsAuthenticated])
+# class ContactView(APIView):
+#     @staticmethod
+#     def get(request):
+#         try:
+#             contact = Contact.objects.get(user=request.user)
+#             serializer = ContactSerializer(contact)
+#         except Contact.DoesNotExist:
+#             return Response({'response': f'{request.user} has no contacts. '
+#                                          f'You can make PUT request'})
+#         return Response(serializer.data)
+#
+#     @staticmethod
+#     def put(request):
+#         contact, _ = Contact.objects.get_or_create(user=request.user)
+#         serializer = ContactSerializer(contact, request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#         else:
+#             raise serializer.errors
+#         return Response(serializer.data)
 
 
 class LoginView(APIView):
@@ -141,7 +141,8 @@ class ProfileView(LoginRequiredMixin, APIView):
         user = User.objects.get(id=self.request.user.id)
         contact = Contact.objects.get(user=self.request.user)
         orders = Order.objects.filter(user=self.request.user)
-        reviews = Comment.objects.filter(user=self.request.user)
+        reviews = Comment.objects.filter(user=self.request.user).order_by(
+            '-posted')
 
         data = {
             'cart_count': cart_count,
@@ -228,68 +229,29 @@ class ProfileView(LoginRequiredMixin, APIView):
         messages.success(request, 'You have change profile successfully!')
         return redirect('authorization:profile')
 
-
-class CartView(LoginRequiredMixin, APIView):
-    template_name = 'cart.html'
-
-    def get(self, request, *args, **kwargs):
-        try:
-            order = Order.objects.filter(status='new', is_active=True).get(
-                user=self.request.user)
-            products = OrderItem.objects.filter(order=order)
-            total_price = OrderItem.objects.filter(order=order).aggregate(
-                Sum('total_price'))
-
-            try:
-                cart_count = Order.objects.filter(status='new').values_list(
-                    'total_items_count', flat=True).get(user=self.request.user)
-            except (Order.DoesNotExist, TypeError):
-                cart_count = None
-
-            data = {
-                'order': order,
-                'products': products,
-                'total_price': total_price,
-                'cart_count': cart_count
-            }
-            return Response(data)
-
-        except ObjectDoesNotExist:
-            messages.error(request, 'You do not have an active order!')
-            return Response()
-
-    def post(self, request, *args, **kwargs):
-        pass
-
-
 class OrderView(LoginRequiredMixin, APIView):
     template_name = 'order.html'
 
     def get(self, request, order_id, *args, **kwargs):
+        order = get_object_or_404(Order,
+                                  id=order_id,
+                                  user=self.request.user)
+        products = OrderItem.objects.filter(order=order)
+        total_price = OrderItem.objects.filter(order=order).aggregate(
+            Sum('total_price'))
         try:
-            order = get_object_or_404(Order,
-                                      id=order_id,
-                                      user=request.user)
-            products = OrderItem.objects.filter(order=order)
-            total_price = OrderItem.objects.filter(order=order).aggregate(
-                Sum('total_price'))
-            try:
-                cart_count = Order.objects.filter(status='new').values_list(
-                    'total_items_count', flat=True).get(user=self.request.user)
-            except (Order.DoesNotExist, TypeError):
-                cart_count = None
+            cart_count = Order.objects.filter(status='new').values_list(
+                'total_items_count', flat=True).get(user=self.request.user)
+        except (Order.DoesNotExist, TypeError):
+            cart_count = None
 
-            data = {
-                'order': order,
-                'products': products,
-                'total_price': total_price,
-                'cart_count': cart_count
-            }
-            return Response(data)
-        except ObjectDoesNotExist:
-            messages.error(request, 'Something WRONG!')
-            return Response()
-
+        data = {
+            'order': order,
+            'products': products,
+            'total_price': total_price,
+            'cart_count': cart_count
+        }
+        return Response(data)
 
 @login_required
 def logout_request(request):

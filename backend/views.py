@@ -2,13 +2,14 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db import IntegrityError
 from django.db.models import Q, Sum, F, Avg, Max, Min
 from django.db.models.query import Prefetch
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, redirect
+from django.shortcuts import get_object_or_404, redirect, render
 
 from rest_framework import status, viewsets
 from rest_framework.generics import ListAPIView
@@ -493,24 +494,23 @@ class PartnerUpdate(APIView):
 
 
 class IndexView(APIView):
-    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = 'store.html'
 
-    @staticmethod
-    def get(request, *args, **kwargs):
-
-        category_vars = set(request.GET.getlist('category'))
-        brand_vars = set(request.GET.getlist('brand'))
-        price_min = request.GET.get('min_price')
-        price_max = request.GET.get('max_price')
-        paginate_by = request.GET.get('paginate_by', 20)
-        sort_by = request.GET.get('sort_by', 'id')
-        page = request.GET.get('page')
+    def get(self, request, *args, **kwargs):
 
         price_min_abs = ProductInfo.objects.aggregate(Min('price'))[
             'price__min']
         price_max_abs = ProductInfo.objects.aggregate(Max('price'))[
             'price__max']
+
+        category_vars = set(request.GET.getlist('category'))
+        brand_vars = set(request.GET.getlist('brand'))
+        price_min = int(request.GET.get('min_price', price_min_abs))
+        price_max = int(request.GET.get('max_price', price_max_abs))
+        paginate_by = int(request.GET.get('paginate_by', 20))
+        sort_by = str(request.GET.get('sort_by', 'id'))
+        page = int(request.GET.get('page', 1))
+
         categories = Category.objects.all()
         brands = Brand.objects.all()
         products = ProductInfo.objects.all()
@@ -519,12 +519,12 @@ class IndexView(APIView):
             products = products.filter(category__in=category_vars)
         if brand_vars:
             products = products.filter(brand__in=brand_vars)
-        if price_min or price_max:
-            products = products.filter(price__range=(price_min, price_max))
+
+        products = products.filter(price__range=(price_min, price_max))
 
         try:
             cart_count = Order.objects.filter(status='new').values_list(
-                'total_items_count', flat=True).get(user=request.user)
+                'total_items_count', flat=True).get(user=self.request.user)
         except (Order.DoesNotExist, TypeError):
             cart_count = None
 
@@ -557,7 +557,6 @@ class IndexView(APIView):
 
 
 class ProductInfoView(APIView):
-    renderer_classes = [TemplateHTMLRenderer, JSONRenderer]
     template_name = 'product.html'
 
     def get(self, request, product_id, *args, **kwargs):
@@ -573,42 +572,41 @@ class ProductInfoView(APIView):
                 'total_items_count', flat=True).get(user=self.request.user)
         except (Order.DoesNotExist, TypeError):
             cart_count = None
-        serializer = ProductInfoSerializer(instance=product_info)
 
-        if request.accepted_renderer.format == 'html':
-            data = {
-                'serializer': serializer,
-                'product_info': product_info,
-                'parameters': parameters,
-                'comments': comments,
-                'cart_count': cart_count
-            }
-            return Response(data)
-
-        data = serializer.data
+        data = {
+            'product_info': product_info,
+            'parameters': parameters,
+            'comments': comments,
+            'cart_count': cart_count
+        }
         return Response(data)
 
-    @staticmethod
-    def post(request, *args, **kwargs):
+
+
+    def post(self, request, *args, **kwargs):
         if request.POST.get('form_name') == 'add_review':
-            text = request.POST.get('text')
+            product_id = int(request.data['product'])
+            text = str(request.POST.get('text'))
+            rating = int(request.POST.get('rating'))
+
             if not text:
                 messages.error(request, 'Need text to add review')
                 return redirect("backend:product_info",
-                                product_id=request.data['product'])
-            rating = request.POST.get('rating')
+                                product_id=product_id)
             if not rating:
                 messages.error(request, 'Need rating to add review')
                 return redirect("backend:product_info",
-                                product_id=request.data['product'])
+                                product_id=product_id)
+
             new_comment = Comment.objects.create(
-                user=User.objects.get(id=request.data['user']),
+                user=self.request.user,
                 text=text,
-                product=Product.objects.get(id=request.data['product']),
+                product=Product.objects.get(id=product_id),
                 rating=rating)
             new_comment.save()
             return redirect("backend:product_info",
-                            product_id=request.data['product'])
+                            product_id=product_id)
+
         elif request.POST.get('form_name') == 'add_to_cart':
             product_id = int(request.POST.get('product'))
             quantity = int(request.POST.get('quantity'))
@@ -616,11 +614,103 @@ class ProductInfoView(APIView):
                         product_id=product_id,
                         quantity=quantity)
             return redirect("backend:product_info",
-                            product_id=request.data['product'])
+                            product_id=product_id)
+
+
+class CartView(LoginRequiredMixin, APIView):
+    template_name = 'cart.html'
+
+    def get(self, request, *args, **kwargs):
+        try:
+            order = Order.objects.filter(status='new', is_active=True).get(
+                user=self.request.user)
+            products = OrderItem.objects.filter(order=order).order_by('id')
+            total_price = OrderItem.objects.filter(order=order).aggregate(
+                Sum('total_price'))
+
+            try:
+                cart_count = Order.objects.filter(status='new').values_list(
+                    'total_items_count', flat=True).get(user=self.request.user)
+            except (Order.DoesNotExist, TypeError):
+                cart_count = None
+
+            data = {
+                'order': order,
+                'products': products,
+                'total_price': total_price,
+                'cart_count': cart_count
+            }
+            return Response(data)
+
+        except Order.DoesNotExist:
+            messages.error(request, 'You do not have an active order!')
+            return Response()
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('form_name') == 'change_quantity':
+            product_id = int(request.POST.get('product_id'))
+            quantity = int(request.POST.get('quantity'))
+
+            try:
+                order = Order.objects.filter(status='new',
+                                             is_active=True).get(
+                    user=self.request.user)
+            except Order.DoesNotExist:
+                messages.error(request, 'Order does not found! Please try '
+                                        'again!')
+                return redirect('backend:cart')
+
+            try:
+                order_item = OrderItem.objects.filter(order=order).get(
+                    product=product_id)
+            except OrderItem.DoesNotExist:
+                messages.error(request, 'Product does not found in your cart! '
+                                        'Please try again!')
+                return redirect('backend:cart')
+
+            try:
+                product = ProductInfo.objects.get(product=product_id)
+            except Product.DoesNotExist:
+                messages.error(request, 'Product does not found! '
+                                        'Please try again!')
+                return redirect('backend:cart')
+
+            if quantity <= product.quantity:
+                order_item.quantity = quantity
+                order_item.save()
+                return redirect('backend:cart')
+            else:
+                messages.error(request, 'SORRY, OUT OF STOCK OR TO MANY!')
+                return redirect('backend:cart')
+        elif request.POST.get('form_name') == 'place_order':
+            try:
+                order = Order.objects.filter(status='new',
+                                             is_active=True).get(
+                    user=self.request.user)
+                order_items = OrderItem.objects.filter(order=order)
+
+                for order_item in order_items:
+                    product = ProductInfo.objects.get(product=order_item.product)
+                    if order_item.quantity > product.quantity:
+                        messages.error(request,
+                                       f'SORRY, "{order_item.product.name}" '
+                                       f'OUT OF STOCK OR TO MANY!')
+                        return redirect('backend:cart')
+                    else:
+                        product.quantity -= order_item.quantity
+                        product.save()
+                order.status = 'ordered'
+                order.save()
+                messages.success(request, 'Order was placed successfully!')
+                return redirect('backend:cart')
+            except Order.DoesNotExist:
+                messages.error(request, 'Order does not found! Please try '
+                                        'again!')
+                return redirect('backend:cart')
+
 
 @login_required
 def add_to_cart(request, product_id, quantity=1):
-    print(quantity)
     product = get_object_or_404(Product,
                                 pk=product_id)
     product_info = get_object_or_404(ProductInfo,
@@ -640,9 +730,6 @@ def add_to_cart(request, product_id, quantity=1):
             shop=product_info.shop)
         order_item.quantity += quantity
         order_item.save()
-
-        product_info.quantity -= quantity
-        product_info.save()
         messages.success(request, 'Product added to cart successfully!')
         return redirect(request.META.get('HTTP_REFERER',
                                          'redirect_if_referer_not_found'))
@@ -664,23 +751,24 @@ def remove_from_cart(request, item_id):
             order_item.delete()
             product.save()
             return redirect('authorization:cart')
-        except ObjectDoesNotExist:
+        except OrderItem.DoesNotExist:
             messages.error(request, 'Something WRONG!')
             return redirect('authorization:cart')
-    except ObjectDoesNotExist:
+    except Order.DoesNotExist:
         messages.error(request, 'Something WRONG!')
         return redirect('authorization:cart')
 
-
-@login_required
-def place_order(request):
-    try:
-        order = Order.objects.filter(status='new',
-                                     is_active=True).get(user=request.user)
-        order.status = 'ordered'
-        order.save()
-        messages.success(request, 'Order was placed successfully!')
-        return redirect('authorization:cart')
-    except ObjectDoesNotExist:
-        messages.error(request, 'Something WRONG!')
-        return redirect('authorization:cart')
+def search(request):
+    if request.method == 'GET':
+        search_query = request.GET.get('search')
+        if search_query:
+            results = Product.objects.filter(Q(name__icontains=search_query) | Q(
+                description__icontains=search_query))
+            data = {
+                'results': results,
+                'search_query': search_query
+            }
+            return render(request, 'search.html', data)
+        else:
+            messages.error(request, 'Please enter a search query!')
+            return render(request, 'search.html')

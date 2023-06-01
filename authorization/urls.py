@@ -1,8 +1,9 @@
-from django.urls import path, include, re_path
 from django_rest_passwordreset.views import reset_password_request_token,\
     reset_password_confirm
-from .views import CartView, ContactView, LoginView, OrderView, ProfileView,\
-    RestrictedApiView, RegistrationView, logout_request
+from django.urls import path, include, re_path
+
+from .views import LoginView, OrderView, ProfileView, RegistrationView, \
+    logout_request
 
 
 urlpatterns = [
@@ -23,8 +24,6 @@ urlpatterns = [
          name='logout'),
     path('profile', ProfileView.as_view(),
          name='profile'),
-    path('cart', CartView.as_view(),
-         name='cart'),
     path('profile/order/<int:order_id>/', OrderView.as_view(),
          name='show_order'),
     path('register', RegistrationView.as_view(),

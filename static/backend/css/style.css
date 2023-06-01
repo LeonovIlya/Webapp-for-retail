@@ -2379,3 +2379,8 @@ input[type="range"] {
   margin: 15px;
   text-align:center;
 }
+
+.highlight {
+  background-color: yellow;
+  font-weight: bold;
+}

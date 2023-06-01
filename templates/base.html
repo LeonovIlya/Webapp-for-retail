@@ -81,9 +81,9 @@
 						<!-- SEARCH BAR -->
 						<div class="col-md-6">
 							<div class="header-search">
-								<form>
-									<input class="input" placeholder="Search here">
-									<button class="search-btn">Search</button>
+								<form action="{% url 'backend:search' %}" method="GET">
+									<input class="input" name="search" type="search" placeholder="{% if search_query %}{{ search_query }}{% else %}Search{% endif %}" aria-label="Search">
+									<button class="search-btn" type="submit">Search</button>
 								</form>
 							</div>
 						</div>
@@ -96,7 +96,7 @@
 								{% if user.is_authenticated %}
 								<div class="dropdown">
 									<a class="dropdown-toggle" data-toggle="dropdown" aria-expanded="true">
-										<a href="{% url 'authorization:cart' %}">
+										<a href="{% url 'backend:cart' %}">
 										<i class="fa fa-shopping-cart"></i>
 										<span>Your Cart</span>
 											<div class="qty">{% if cart_count %}{{ cart_count }}{% else %}0{% endif %}</div>

@@ -3,22 +3,12 @@ from django.core.mail import EmailMultiAlternatives
 from django.dispatch import receiver, Signal
 from django_rest_passwordreset.signals import reset_password_token_created
 
-from users.models import ConfirmEmailToken, User
+from authorization.models import ConfirmEmailToken, User
 
 
 @receiver(reset_password_token_created)
-def password_reset_token_created(sender, instance, reset_password_token, **kwargs):
-    """
-    Отправляем письмо с токеном для сброса пароля
-    When a token is created, an e-mail needs to be sent to the user
-    :param sender: View Class that sent the signal
-    :param instance: View Instance that sent the signal
-    :param reset_password_token: Token Model Object
-    :param kwargs:
-    :return:
-    """
-    # send an e-mail to the user
-
+def password_reset_token_created(sender, instance, reset_password_token,
+                                 **kwargs):
     msg = EmailMultiAlternatives(
         # title:
         f"Password Reset Token for {reset_password_token.user}",
@@ -32,13 +22,9 @@ def password_reset_token_created(sender, instance, reset_password_token, **kwarg
     msg.send()
 
 
-
-def new_user_registered_signal(user_id, **kwargs):
-    """
-    отправляем письмо с подтверждение почты при регистрации
-    """
-    # send an e-mail to the user
+def confirm_email_registered_signal(user_id, **kwargs):
     token, _ = ConfirmEmailToken.objects.get_or_create(user_id=user_id)
+    print(token)
 
     msg = EmailMultiAlternatives(
         # title:
@@ -53,14 +39,8 @@ def new_user_registered_signal(user_id, **kwargs):
     msg.send()
 
 
-
 def new_order_signal(user_id, **kwargs):
-    """
-    отправяем письмо при изменении статуса заказа
-    """
-    # send an e-mail to the user
     user = User.objects.get(id=user_id)
-
     msg = EmailMultiAlternatives(
         # title:
         f"Обновление статуса заказа",

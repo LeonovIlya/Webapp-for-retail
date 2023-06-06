@@ -34,6 +34,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                                       "A user with that email already exists.")
                               }
                               )
+    email_confirmed = models.BooleanField(default=False)
     company = models.CharField(verbose_name='Компания',
                                max_length=80,
                                blank=True)
@@ -176,4 +177,4 @@ class ConfirmEmailToken(models.Model):
         return super(ConfirmEmailToken, self).save(*args, **kwargs)
 
     def __str__(self):
-        return 'Password reset token for user {user}'.format(user=self.user)
+        return 'Token for user {user}'.format(user=self.user)

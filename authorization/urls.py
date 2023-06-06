@@ -3,7 +3,7 @@ from django_rest_passwordreset.views import reset_password_request_token,\
 from django.urls import path, include, re_path
 
 from .views import LoginView, OrderView, ProfileView, RegistrationView, \
-    logout_request
+    logout_request, send_email
 
 
 urlpatterns = [
@@ -27,5 +27,7 @@ urlpatterns = [
     path('profile/order/<int:order_id>/', OrderView.as_view(),
          name='show_order'),
     path('register', RegistrationView.as_view(),
-         name='register')
+         name='register'),
+    path('confirm_email/<int:user_id>', send_email,
+         name='confirm_email')
 ]

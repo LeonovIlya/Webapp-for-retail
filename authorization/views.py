@@ -3,6 +3,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
+
+from django.core.mail import send_mail
+
 from django.db.models import Sum
 from django.db.utils import IntegrityError
 from django.http import HttpResponseRedirect
@@ -19,6 +22,8 @@ from .models import Comment, Contact, User
 from .serializers import UserRegSerializer, ContactSerializer
 
 from backend.models import Order, OrderItem, Product, ProductInfo, Shop
+
+from shop.task import send_email_test
 
 
 # def profileView(request):
@@ -257,3 +262,7 @@ class OrderView(LoginRequiredMixin, APIView):
 def logout_request(request):
     logout(request)
     return redirect('backend:index')
+
+def send_email(request, user_id):
+    send_email_test.delay(user_id)
+    return redirect('authorization:profile')

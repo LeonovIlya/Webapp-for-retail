@@ -31,9 +31,11 @@
                                 <input name="password" type="password" class="form-control" />
                             </div>
                         </div>
-                        <div class="col-md-6 col-md-offset-4">
-                            <input name="login" type="submit" value="Login" class="primary-btn" /> &nbsp;
-                            <a href="{% url 'authorization:register' %}">or Register</a>
+                        <div style="text-align: center;" class="col-md-6 col-md-offset-4">
+                            <input name="login" type="submit" value="Login" class="primary-btn" />
+                            <br><br><br>
+                            <p class="text-center">Forgot your password <a href="{%url 'password_reset'%}">Reset Password</a></p>
+		                    <p class="text-center">Don't have a account? <a href="{% url 'authorization:register' %}">Register</a></p>
                         </div>
                     </div>
                 </div>

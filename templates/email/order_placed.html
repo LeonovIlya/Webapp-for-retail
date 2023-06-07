@@ -1,0 +1,37 @@
+<html>
+    <body>
+        <br>
+
+        <h2>Thank you for your order!</h2>
+        <h3>Your Order ID: {{ order.id }}</h3>
+        <h4>Current status: {{ order.status }}</h4>
+        <b>Created:</b> {{ order.created|date:"d/m/Y H:i"  }}
+        <b>Updated:</b> {{ order.updated|date:"d/m/Y H:i"  }}
+
+        <h2>Order Details:</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">№</th>
+                    <th scope="col">Product</th>
+                    <th scope="col" class="text-center">QTY</th>
+                    <th style="width: 18%" scope="col">Price</th>
+                    <th style="width: 18%" scope="col">Total</th>
+                    <th scope="col"></th>
+                </tr>
+              </thead>
+            <tbody>
+                {% for order_item in order_items %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ order_item.product.name }}</td>
+                        <td>{{ order_item.quantity }}</td>
+                        <td>{{ order_item.price_per_item|floatformat }} ₽</td>
+                        <td>{{ order_item.total_price }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </body>
+</html>

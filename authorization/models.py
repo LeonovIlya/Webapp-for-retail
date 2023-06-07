@@ -170,6 +170,7 @@ class ConfirmEmailToken(models.Model):
         db_index=True,
         unique=True
     )
+    used = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.key:

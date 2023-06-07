@@ -18,12 +18,12 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from .forms import RegisterForm
-from .models import Comment, Contact, User
+from .models import ConfirmEmailToken, Comment, Contact, User
 from .serializers import UserRegSerializer, ContactSerializer
 
 from backend.models import Order, OrderItem, Product, ProductInfo, Shop
 
-from shop.task import send_email_test
+from shop.task import send_email_to_confirm_user_email
 
 
 # def profileView(request):
@@ -133,6 +133,24 @@ class RegistrationView(APIView):
                 return Response(data)
 
 
+class ConfirmEmailView(LoginRequiredMixin, APIView):
+    def get(self, request, token, *args, **kwargs):
+        try:
+            confirmed_token = ConfirmEmailToken.objects.get(
+                user=self.request.user.id,
+                key=token,
+                used=False)
+            confirmed_token.user.email_confirmed = True
+            confirmed_token.user.save()
+            confirmed_token.used = True
+            confirmed_token.save()
+            messages.success(request, 'Email successfully confirmed!')
+
+        except ConfirmEmailToken.DoesNotExist:
+            messages.error(request, 'Something wrong, please try again!')
+        return redirect('authorization:profile')
+
+
 class ProfileView(LoginRequiredMixin, APIView):
     template_name = 'profile.html'
 
@@ -201,6 +219,7 @@ class ProfileView(LoginRequiredMixin, APIView):
             user.username = username
         if email:
             user.email = email
+            user.email_confirmed = False
         if company:
             user.company = company
         if position:
@@ -263,6 +282,7 @@ def logout_request(request):
     logout(request)
     return redirect('backend:index')
 
-def send_email(request, user_id):
-    send_email_test.delay(user_id)
+@login_required
+def confirm_email(request, user_id):
+    send_email_to_confirm_user_email.delay(user_id)
     return redirect('authorization:profile')

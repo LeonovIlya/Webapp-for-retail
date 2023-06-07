@@ -52,7 +52,7 @@
                                 <td>{{ product.product.name }}</td>
                                 <td class="text-center">{{ product.quantity }}</td>
                                 <td>{{ product.price_per_item|floatformat }} ₽</td>
-                                <td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
+                                <td>{{ product.total_price|floatformat }} ₽</td>
                             </tr>
                             {% endfor %}
                             </tbody>

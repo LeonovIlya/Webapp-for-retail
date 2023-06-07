@@ -119,7 +119,7 @@
 									</form>
 									</td>
 									<td>{{ product.price_per_item|floatformat }} ₽</td>
-									<td>{% widthratio product.price_per_item 1 product.quantity %} ₽</td>
+									<td>{{ product.total_price|floatformat }} ₽</td>
 									<td><a href="{% url 'backend:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
 								</tr>
 								{% endfor %}

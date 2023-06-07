@@ -59,3 +59,16 @@ generate_products_pics()
 
 generate_products_descriptions()
 ```
+
+Запуск воркера:
+```bash
+celery -A shop worker -l info
+```
+
+Запуск воркера под виндой:
+```bash
+pip install gevent
+```
+```bash
+celery -A shop worker -l info -P gevent
+```

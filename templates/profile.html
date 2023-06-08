@@ -108,8 +108,9 @@
                                             *edit profile before tap button<br>
                                     <button class="primary-btn-ltl">Change profile</button>
                                     </form>
+                                     <button class="primary-btn-ltl" style="margin: 10px 0 0 0;" onclick="location.href='{% url 'authorization:change_password' %}'">Change password</button><br>
                                     {% if user.email_confirmed is False %}
-                                        <button class="primary-btn-ltl" style="margin: 10px 0 0 0;" onclick="location.href='{% url 'authorization:confirm_email' user_id=user.id %}'">Confirm Email</button>
+                                    <button class="primary-btn-ltl" style="margin: 10px 0 0 0;" onclick="location.href='{% url 'authorization:confirm_email' user_id=user.id %}'">Confirm Email</button>
                                     {% endif %}
                                 </div>
                             </div>

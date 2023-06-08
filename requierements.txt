@@ -14,3 +14,4 @@ openai
 pillow
 django-widget-tweaks
 django-crispy-forms
+django-recaptcha

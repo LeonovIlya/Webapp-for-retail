@@ -3,13 +3,12 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-
-from django.core.mail import send_mail
-
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.db.utils import IntegrityError
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.http import urlsafe_base64_decode
+
 from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -17,65 +16,15 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
 
-from .forms import RegisterForm
+from .forms import RegisterForm, SetPasswordForm, ResetPasswordForm
 from .models import ConfirmEmailToken, Comment, Contact, User
 from .serializers import UserRegSerializer, ContactSerializer
+from .tokens import account_activation_token
 
 from backend.models import Order, OrderItem, Product, ProductInfo, Shop
 
-from shop.task import send_email_to_confirm_user_email
-
-
-# def profileView(request):
-#     template = 'accounts/index.html'
-#     context = {'user': request.user}
-#     return render(request, template, context)
-#
-#
-# @permission_classes([IsAuthenticated, ])
-# class RestrictedApiView(APIView):
-#     def get(self, request, *args, **kwargs):
-#         if request.user.type == 'buyer':
-#             data = f'{request.user}, Вы покупатель'
-#         elif request.user.type == 'shop':
-#             data = f'{request.user}, Вы продавец'
-#         return Response(data)
-
-
-# class RegistrationView(APIView):
-#     def post(self, request):
-#         serializer = UserRegSerializer(data=request.data)
-#         data = {}
-#         if serializer.is_valid():
-#             user = serializer.save()
-#             data['response'] = 'Successfully created a new User'
-#             data['user'] = user.email
-#         else:
-#             data = serializer.errors
-#         return Response(data)
-
-
-# @permission_classes([IsAuthenticated])
-# class ContactView(APIView):
-#     @staticmethod
-#     def get(request):
-#         try:
-#             contact = Contact.objects.get(user=request.user)
-#             serializer = ContactSerializer(contact)
-#         except Contact.DoesNotExist:
-#             return Response({'response': f'{request.user} has no contacts. '
-#                                          f'You can make PUT request'})
-#         return Response(serializer.data)
-#
-#     @staticmethod
-#     def put(request):
-#         contact, _ = Contact.objects.get_or_create(user=request.user)
-#         serializer = ContactSerializer(contact, request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#         else:
-#             raise serializer.errors
-#         return Response(serializer.data)
+from shop.task import send_email_to_confirm_user_email, \
+    send_email_to_reset_password
 
 
 class LoginView(APIView):
@@ -253,6 +202,56 @@ class ProfileView(LoginRequiredMixin, APIView):
         messages.success(request, 'You have change profile successfully!')
         return redirect('authorization:profile')
 
+
+class ChangePasswordView(LoginRequiredMixin, APIView):
+    template_name = 'account/change_password.html'
+
+    def get(self, request, *args, **kwargs):
+        form = SetPasswordForm(self.request.user)
+        data = {
+            'form': form
+        }
+        return Response(data)
+
+    def post(self, request, *args, **kwargs):
+        form = SetPasswordForm(self.request.user, request.POST or None)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your password has been changed '
+                                      'successfully!\nPlease login with new '
+                                      'password!')
+            return redirect('authorization:login')
+        else:
+            data = {
+                'form': form
+            }
+        return Response(data)
+
+
+class ResetPasswordView(APIView):
+    template_name = 'account/reset_password.html'
+
+    def get(self, request, *args, **kwargs):
+        form = ResetPasswordForm()
+        data = {
+            'form': form
+        }
+        return Response(data)
+    def post(self, request, *args, **kwargs):
+        form = ResetPasswordForm(request.POST or None)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.filter(Q(email=email)).first()
+            if user:
+                send_email_to_reset_password.delay(email)
+                messages.success(request, 'Check your email!')
+            else:
+                messages.error(request, 'Wrong email!')
+        data = {
+            'form': form
+        }
+        return Response(data)
+
 class OrderView(LoginRequiredMixin, APIView):
     template_name = 'order.html'
 
@@ -285,4 +284,32 @@ def logout_request(request):
 @login_required
 def confirm_email(request, user_id):
     send_email_to_confirm_user_email.delay(user_id)
+    messages.success(request, 'Check your mail!')
     return redirect('authorization:profile')
+
+def passwordResetConfirm(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except:
+        user = None
+
+    if user is not None and account_activation_token.check_token(user, token):
+        if request.method == 'POST':
+            form = SetPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Your password has been set. You may go ahead and <b>log in </b> now.")
+                return redirect('authorization:login')
+            else:
+                for error in list(form.errors.values()):
+                    messages.error(request, error)
+
+        form = SetPasswordForm(user)
+        return render(request, 'account/reset_password_confirm.html', {'form':
+                                                                      form})
+    else:
+        messages.error(request, "Link is expired")
+
+    messages.error(request, 'Something went wrong, redirecting back to Homepage')
+    return redirect('authorization:login')

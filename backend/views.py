@@ -25,7 +25,6 @@ from requests import get
 
 from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
     Parameter, Brand
-from authorization.forms import CommentForm
 from authorization.models import Contact, ConfirmEmailToken, Comment, User
 from authorization.serializers import CommentSerializer
 from shop.task import send_email_order_placed

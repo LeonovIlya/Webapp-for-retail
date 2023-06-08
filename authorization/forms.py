@@ -1,27 +1,15 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, \
+    PasswordResetForm
+from captcha.fields import ReCaptchaField
+from captcha.widgets import ReCaptchaV2Checkbox
 
 from .models import Comment, User
 
 USER_TYPE_CHOICES = (
     ('shop', 'Магазин'),
     ('buyer', 'Покупатель'))
-
-
-class UserAdminCreationForm(UserCreationForm):
-    class Meta:
-        model = get_user_model()
-        fields = ['email', 'type', 'company', 'position']
-
-
-class CommentForm(forms.ModelForm):
-    class Meta:
-        model = Comment
-        fields = ('text',)
-        widgets = {
-            'rating': forms.RadioSelect()
-        }
 
 
 class RegisterForm(UserCreationForm):
@@ -31,3 +19,18 @@ class RegisterForm(UserCreationForm):
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2', 'type')
+
+    captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
+
+
+class ChangePasswordForm(SetPasswordForm):
+    class Meta:
+        model = User
+        fields = ('new_password1', 'new_password2')
+
+
+class ResetPasswordForm(PasswordResetForm):
+    def __init__(self, *args, **kwargs):
+        super(PasswordResetForm, self).__init__(*args, **kwargs)
+
+    # captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())

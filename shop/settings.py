@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'crispy_forms',
     'crispy_bootstrap4',
+    'captcha',
 
     'backend',
     'authorization',
@@ -128,6 +129,10 @@ USE_L10N = True
 USE_TZ = True
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+RECAPTCHA_PUBLIC_KEY = config.RECAPTCHA_PUBLIC_KEY
+RECAPTCHA_PRIVATE_KEY = config.RECAPTCHA_PRIVATE_KEY
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.mail.ru'

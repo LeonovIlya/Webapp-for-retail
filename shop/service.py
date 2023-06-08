@@ -1,26 +1,36 @@
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.dispatch import receiver, Signal
-from django_rest_passwordreset.signals import reset_password_token_created
-from django.template import Context
+from django.db.models import Q
 from django.template.loader import render_to_string
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
+
+
 from authorization.models import ConfirmEmailToken, User
 from backend.models import Order, OrderItem
+from authorization.tokens import account_activation_token
 
 
-@receiver(reset_password_token_created)
-def password_reset_token_created(sender, instance, reset_password_token,
-                                 **kwargs):
+def reset_password_signal(email, **kwargs):
+    user = User.objects.filter(Q(email=email)).first()
+    msg_body = render_to_string('account/template_reset_password.html', {
+                'username': user.username,
+                'domain': '127.0.0.1:8000',
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': account_activation_token.make_token(user),
+                "protocol": 'http'
+                })
     msg = EmailMultiAlternatives(
         # title:
-        f"Password Reset Token for {reset_password_token.user}",
+        'Password Reset request',
         # message:
-        reset_password_token.key,
+        'text',
         # from:
         settings.EMAIL_HOST_USER,
         # to:
-        [reset_password_token.user.email]
+        [user.email]
     )
+    msg.attach_alternative(msg_body, "text/html")
     msg.send()
 
 

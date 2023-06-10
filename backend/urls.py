@@ -1,10 +1,5 @@
-from django.contrib.auth import logout
-from django.conf import settings
-from django_rest_passwordreset.views import reset_password_request_token,\
-    reset_password_confirm
-from django.urls import path, include
+from django.urls import path
 from rest_framework import routers
-from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import CartView, IndexView, ProductInfoView, add_to_cart,\
     remove_from_cart, search

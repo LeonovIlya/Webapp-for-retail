@@ -95,21 +95,6 @@ class ProductInfoFactory(factory.django.DjangoModelFactory):
     shop = factory.fuzzy.FuzzyChoice(Shop.objects.all())
 
 
-# class ProductsParametersFactory(factory.django.DjangoModelFactory):
-#     class Meta:
-#         model = ProductsParameters
-#
-#     product = factory.SubFactory(ProductFactory)
-#     parameter = factory.SubFactory(ParameterFactory)
-#     value = factory.Faker('pyint')
-#
-#
-# class ProductWithParametersFactory(ProductFactory):
-#     reports = factory.RelatedFactory(
-#         ProductsParametersFactory,
-#         factory_related_name='product')
-
-
 def generate_products_pics():
     product_names = list(Product.objects.all().values_list('name',
                                                            flat=True))

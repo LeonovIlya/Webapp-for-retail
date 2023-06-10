@@ -1,155 +1,133 @@
 {% extends "base.html" %}
-
 {% block content %}
-
-		<!-- BREADCRUMB -->
-		<div id="breadcrumb" class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<div class="col-md-12">
-						<h3 class="breadcrumb-header">Checkout</h3>
-						<ul class="breadcrumb-tree">
-							<li><a href="{% url 'backend:index' %}">Home</a></li>
-							<li class="active">Checkout</li>
-						</ul>
-					</div>
-				</div>
-				<!-- /row -->
+<div id="breadcrumb" class="section">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-12">
+				<h3 class="breadcrumb-header">Checkout</h3>
+				<ul class="breadcrumb-tree">
+					<li><a href="{% url 'backend:index' %}">Home</a></li>
+					<li class="active">Checkout</li>
+				</ul>
 			</div>
-			<!-- /container -->
 		</div>
-		<!-- /BREADCRUMB -->
+	</div>
+</div>
+<div class="section">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-5">
+				{% for message in messages %}
+				<div class="container-fluid p-0">
+					<div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+							<span aria-hidden="True">&times;</span>
+					    </button>
+					    {{ message }}
+				    </div>
+				</div>
+				{% endfor %}
+				{% if order %}
+				<div class="billing-details">
+					<div class="section-title">
+						<h3 class="title">Shiping and Billing address</h3>
+					</div>
 
-		<!-- SECTION -->
-		<div class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-
-					<div class="col-md-5">
-						<!-- Billing Details -->
-						{% for message in messages %}
-						<div class="container-fluid p-0">
-						  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
-							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-							  <span aria-hidden="True">&times;</span>
-							</button>
-							{{ message }}
-						  </div>
-						</div>
+					Email
+					<div class="form-group">
+						<input class="input" type="email" name="email" placeholder="{{ order.user.email }}" disabled>
+					</div>
+					City
+					<div class="form-group">
+						<input class="input" type="text" name="city" placeholder="{{ order.contact.city }}" disabled>
+					</div>
+					Street
+					<div class="form-group">
+						<input class="input" type="text" name="street" placeholder="{{ order.contact.street }}" disabled>
+					</div>
+					House
+					<div class="form-group">
+						<input class="input" type="text" name="house" placeholder="{{ order.contact.house }}" disabled>
+					</div>
+					Structure
+					<div class="form-group">
+						<input class="input" type="text" name="structure" placeholder="{{ order.contact.structure }}" disabled>
+					</div>
+					Building
+					<div class="form-group">
+						<input class="input" type="text" name="building" placeholder="{{ order.contact.building }}" disabled>
+					</div>
+					Apartment
+					<div class="form-group">
+						<input class="input" type="text" name="apartment" placeholder="{{ order.contact.apartment }}" disabled>
+					</div>
+					Phone
+					<div class="form-group">
+						<input class="input" type="tel" name="phone" placeholder="{{ order.contact.phone}}" disabled>
+					</div>
+					*You can change your shipping address in your profile settings.
+				</div>
+			</div>
+			<div class="col-md-7 order-details">
+				<div class="section-title text-center">
+					<h3 class="title">Your Order</h3>
+				</div>
+				<div class="order-summary">
+					{% if products %}
+					<table class="table">
+						<thead>
+							<tr>
+								<th scope="col">№</th>
+								<th scope="col">Product</th>
+								<th scope="col" class="text-center">QTY</th>
+								<th style="width: 18%" scope="col">Price</th>
+								<th style="width: 18%" scope="col">Total</th>
+								<th scope="col"></th>
+							</tr>
+					    </thead>
+						<tbody>
+						{% for product in products %}
+						<tr>
+							<th scope="row">{{ forloop.counter }}</th>
+							<td><a href="{% url 'backend:product_info' product.product.id %}">{{ product.product.name }}</a></td>
+							<td class="text-center">
+							<form method="POST">
+								{% csrf_token %}
+									<div>
+										<input type="hidden" name="form_name" value="change_quantity">
+										<input type="hidden" name='product_id' value="{{ product.product.id }}">
+										<input type="number" style="width: 50%;" value="{{ product.quantity }}" id="quantity" name="quantity">
+										<button type="submit">Change</button>
+									</div>
+							</form>
+							</td>
+							<td>{{ product.price_per_item|floatformat }} ₽</td>
+							<td>{{ product.total_price|floatformat }} ₽</td>
+							<td><a href="{% url 'backend:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
+						</tr>
 						{% endfor %}
-						{% if order %}
-						<div class="billing-details">
-							<div class="section-title">
-								<h3 class="title">Shiping and Billing address</h3>
-							</div>
-
-							Email
-							<div class="form-group">
-								<input class="input" type="email" name="email" placeholder="{{ order.user.email }}" disabled>
-							</div>
-							City
-							<div class="form-group">
-								<input class="input" type="text" name="city" placeholder="{{ order.contact.city }}" disabled>
-							</div>
-							Street
-							<div class="form-group">
-								<input class="input" type="text" name="street" placeholder="{{ order.contact.street }}" disabled>
-							</div>
-							House
-							<div class="form-group">
-								<input class="input" type="text" name="house" placeholder="{{ order.contact.house }}" disabled>
-							</div>
-							Structure
-							<div class="form-group">
-								<input class="input" type="text" name="structure" placeholder="{{ order.contact.structure }}" disabled>
-							</div>
-							Building
-							<div class="form-group">
-								<input class="input" type="text" name="building" placeholder="{{ order.contact.building }}" disabled>
-							</div>
-							Apartment
-							<div class="form-group">
-								<input class="input" type="text" name="apartment" placeholder="{{ order.contact.apartment }}" disabled>
-							</div>
-							Phone
-							<div class="form-group">
-								<input class="input" type="tel" name="phone" placeholder="{{ order.contact.phone}}" disabled>
-							</div>
-							*You can change your shipping address in your profile settings.
-						</div>
-						<!-- /Billing Details -->
+					  </tbody>
+					</table>
+					<div class="order-col">
+						<div>Shiping</div>
+						<div><strong>FREE</strong></div>
 					</div>
-
-					<!-- Order Details -->
-					<div class="col-md-7 order-details">
-						<div class="section-title text-center">
-							<h3 class="title">Your Order</h3>
-						</div>
-						<div class="order-summary">
-							{% if products %}
-							<table class="table">
-							  <thead>
-								<tr>
-									<th scope="col">№</th>
-									<th scope="col">Product</th>
-									<th scope="col" class="text-center">QTY</th>
-									<th style="width: 18%" scope="col">Price</th>
-									<th style="width: 18%" scope="col">Total</th>
-									<th scope="col"></th>
-								</tr>
-							  </thead>
-								<tbody>
-								{% for product in products %}
-								<tr>
-									<th scope="row">{{ forloop.counter }}</th>
-									<td><a href="{% url 'backend:product_info' product.product.id %}">{{ product.product.name }}</a></td>
-									<td class="text-center">
-									<form method="POST">
-										{% csrf_token %}
-											<div>
-												<input type="hidden" name="form_name" value="change_quantity">
-												<input type="hidden" name='product_id' value="{{ product.product.id }}">
-												<input type="number" style="width: 50%;" value="{{ product.quantity }}" id="quantity" name="quantity">
-												<button type="submit">Change</button>
-											</div>
-									</form>
-									</td>
-									<td>{{ product.price_per_item|floatformat }} ₽</td>
-									<td>{{ product.total_price|floatformat }} ₽</td>
-									<td><a href="{% url 'backend:remove_from_cart' product.id %}"><i class="fa fa-times-circle"></i></a></td>
-								</tr>
-								{% endfor %}
-							  </tbody>
-							</table>
-							<div class="order-col">
-								<div>Shiping</div>
-								<div><strong>FREE</strong></div>
-							</div>
-							<div class="order-col">
-								<div><strong>TOTAL</strong></div>
-								<div><strong class="order-total">{{ total_price.total_price__sum|floatformat }} ₽</strong></div>
-							</div>
-						</div>
-						<form method="POST">
-							{% csrf_token %}
-							<input type="hidden" name="form_name" value="place_order">
-							<button class="primary-btn order-submit" type="submit">Place order</button>
-						</form>
-						{% else %}
-						<h3>No products in your order!</h3>
-						{% endif %}
-						{% endif %}
+					<div class="order-col">
+						<div><strong>TOTAL</strong></div>
+						<div><strong class="order-total">{{ total_price.total_price__sum|floatformat }} ₽</strong></div>
 					</div>
-					<!-- /Order Details -->
 				</div>
-				<!-- /row -->
+				<form method="POST">
+					{% csrf_token %}
+					<input type="hidden" name="form_name" value="place_order">
+					<button class="primary-btn order-submit" type="submit">Place order</button>
+				</form>
+				{% else %}
+				<h3>No products in your order!</h3>
+				{% endif %}
+				{% endif %}
 			</div>
-			<!-- /container -->
 		</div>
-		<!-- /SECTION -->
-
+	</div>
+</div>
 {% endblock %}

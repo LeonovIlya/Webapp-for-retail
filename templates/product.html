@@ -1,13 +1,8 @@
 {% extends "base.html" %}
-
 {% load custom_tags %}
-
 {% block content %}
-<!-- BREADCRUMB -->
 <div id="breadcrumb" class="section">
-	<!-- container -->
 	<div class="container">
-		<!-- row -->
 		<div class="row">
 			<div class="col-md-12">
 				<ul class="breadcrumb-tree">
@@ -17,17 +12,10 @@
 				</ul>
 			</div>
 		</div>
-		<!-- /row -->
 	</div>
-	<!-- /container -->
 </div>
-<!-- /BREADCRUMB -->
-
-<!-- SECTION -->
 <div class="section">
-	<!-- container -->
 	<div class="container">
-		<!-- row -->
 		<div class="row">
 			{% for message in messages %}
 			<div class="container-fluid p-0">
@@ -39,7 +27,6 @@
 				</div>
 			</div>
 			{% endfor %}
-			<!-- Product main img -->
 			<div class="col-md-5 col-md-push-2">
 				<div id="product-main-img">
 					<div class="product-preview">
@@ -75,9 +62,6 @@
 					</div>
 				</div>
 			</div>
-			<!-- /Product main img -->
-
-			<!-- Product thumb imgs -->
 			<div class="col-md-2  col-md-pull-5">
 				<div id="product-imgs">
 					<div class="product-preview">
@@ -113,9 +97,6 @@
 					</div>
 				</div>
 			</div>
-			<!-- /Product thumb imgs -->
-
-			<!-- Product details -->
 			<div class="col-md-5">
 				<div class="product-details">
 					<h2 class="product-name">{{ product_info.product.name }}</h2>
@@ -136,7 +117,6 @@
 						<br>
 						<b>In stock: </b> <h4 class="product-price"> {{ product_info.quantity|to_int }}</h4>
 					</div>
-
 					<div class="add-to-cart">
 						{% if user.is_authenticated %}
 							{% if product_info.quantity|to_int == 0 %}
@@ -161,23 +141,15 @@
 					</div>
 				</div>
 			</div>
-			<!-- /Product details -->
-
-			<!-- Product tab -->
 			<div class="col-md-12">
 				<div id="product-tab">
-					<!-- product tab nav -->
 					<ul class="tab-nav">
 						<li class="active"><a data-toggle="tab" href="#tab1">Description</a></li>
 						<li><a data-toggle="tab" href="#tab2">Details</a></li>
 						<li><a data-toggle="tab" href="#tab3">Parameters</a></li>
 						<li><a data-toggle="tab" href="#tab4">Reviews{% if comments %}({{comments|length}}){% endif %} </a></li>
 					</ul>
-					<!-- /product tab nav -->
-
-					<!-- product tab content -->
 					<div class="tab-content">
-						<!-- tab1  -->
 						<div id="tab1" class="tab-pane fade in active">
 							<div class="row">
 								<div class="col-md-12">
@@ -185,9 +157,6 @@
 								</div>
 							</div>
 						</div>
-						<!-- /tab1  -->
-
-						<!-- tab2  -->
 						<div id="tab2" class="tab-pane fade in">
 							<div class="w-auto p-3">
 								<ul class="list-group">
@@ -200,9 +169,6 @@
 								</ul>
 							</div>
 						</div>
-						<!-- /tab2  -->
-
-						<!-- tab3  -->
 						<div id="tab3" class="tab-pane fade in">
 							<div class="w-auto p-3">
 								<ul class="list-group">
@@ -213,12 +179,8 @@
 								</ul>
 							</div>
 						</div>
-						<!-- /tab3  -->
-
-						<!-- tab4  -->
 						<div id="tab4" class="tab-pane fade in">
 							<div class="row">
-								<!-- Rating -->
 								<div class="col-md-3">
 									<div id="rating">
 										<div class="rating-avg">
@@ -298,10 +260,6 @@
 										</ul>
 									</div>
 								</div>
-								<!-- /Rating -->
-
-								<!-- Reviews -->
-
 								<div class="col-md-6">
 									<div id="reviews">
 										{% if comments %}
@@ -335,9 +293,6 @@
 										{% endif %}
 									</div>
 								</div>
-								<!-- /Reviews -->
-
-								<!-- Review Form -->
 								<div class="col-md-3">
 									<div id="review-form">
 										{% if user.is_authenticated %}
@@ -370,19 +325,12 @@
 										{% endif %}
 									</div>
 								</div>
-								<!-- /Review Form -->
 							</div>
 						</div>
-						<!-- /tab4  -->
 					</div>
-					<!-- /product tab content  -->
 				</div>
 			</div>
-			<!-- /product tab -->
 		</div>
-		<!-- /row -->
 	</div>
-	<!-- /container -->
 </div>
-<!-- /SECTION -->
 {% endblock %}

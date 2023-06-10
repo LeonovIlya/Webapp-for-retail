@@ -1,36 +1,17 @@
-from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.password_validation import validate_password
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.db import IntegrityError
-from django.db.models import Q, Sum, F, Avg, Max, Min
-from django.db.models.query import Prefetch
-from django.http import JsonResponse
+from django.db.models import Q, Sum, Max, Min
 from django.shortcuts import get_object_or_404, redirect, render
 
-from rest_framework import status, viewsets
-from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
-from rest_framework.authtoken.models import Token
 
-from yaml import load as load_yaml, Loader
-from ujson import loads as load_json
-from distutils.util import strtobool
-from requests import get
-
-from .models import Category, Shop, ProductInfo, Order, OrderItem, Product, \
-    Parameter, Brand
-from authorization.models import Contact, ConfirmEmailToken, Comment, User
-from authorization.serializers import CommentSerializer
+from .models import Brand, Category, Order, OrderItem, Product, ProductInfo
+from authorization.models import Comment
 from shop.task import send_email_order_placed
-from .serializers import CategorySerializer, ShopSerializer, \
-    ProductInfoSerializer, OrderSerializer, OrderItemSerializer, \
-    UserSerializer, ContactSerializer, ProductSerializer
+
 
 class IndexView(APIView):
     template_name = 'store.html'
@@ -290,13 +271,13 @@ def remove_from_cart(request, item_id):
             product.quantity += order_item.quantity
             order_item.delete()
             product.save()
-            return redirect('authorization:cart')
+            return redirect('backend:cart')
         except OrderItem.DoesNotExist:
             messages.error(request, 'Something WRONG!')
-            return redirect('authorization:cart')
+            return redirect('backend:cart')
     except Order.DoesNotExist:
         messages.error(request, 'Something WRONG!')
-        return redirect('authorization:cart')
+        return redirect('backend:cart')
 
 def search(request):
     if request.method == 'GET':

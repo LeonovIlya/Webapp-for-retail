@@ -1,5 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
-
 from shop.celery import app
 from .service import confirm_email_registered_signal, new_order_signal, \
     reset_password_signal

@@ -1,45 +1,43 @@
 {% extends "base.html" %}
-
 {% block content %}
-
 <div class="container">
-        <form action="{% url 'authorization:login' %}" method="post">
-            {% csrf_token %}
-            <div class="col-md-8 col-md-offset-2">
-                <div class="panel panel-default">
-                    <div class="panel-heading">Login</div>
-                    <div class="panel-body">
-                        {% for message in messages %}
-						<div class="container-fluid p-0">
-						  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
-							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-							  <span aria-hidden="True">&times;</span>
-							</button>
-							{{ message }}
-						  </div>
-						</div>
-						{% endfor %}
-                        <div class="form-group clearfix">
-                            <label for="email" class="col-md-4 control-label text-right">Email:</label>
-                            <div class="col-md-6">
-                                <input id="email" name="email" value="" type="text" class="form-control" />
-                            </div>
+    <form action="{% url 'authorization:login' %}" method="post">
+        {% csrf_token %}
+        <div class="col-md-8 col-md-offset-2">
+            <div class="panel panel-default">
+                <div class="panel-heading">Login</div>
+                <div class="panel-body">
+                    {% for message in messages %}
+                    <div class="container-fluid p-0">
+                        <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="True">&times;</span>
+                            </button>
+                            {{ message }}
                         </div>
-                        <div class="form-group clearfix">
-                            <label for="password" class="col-md-4 control-label text-right">Password:</label>
-                            <div class="col-md-6">
-                                <input id="password" name="password" type="password" class="form-control" />
-                            </div>
+                    </div>
+                    {% endfor %}
+                    <div class="form-group clearfix">
+                        <label for="email" class="col-md-4 control-label text-right">Email:</label>
+                        <div class="col-md-6">
+                            <input id="email" name="email" value="" type="text" class="form-control" />
                         </div>
-                        <div style="text-align: center;" class="col-md-6 col-md-offset-4">
-                            <input name="login" type="submit" value="Login" class="primary-btn" />
-                            <br><br><br>
-                            <p class="text-center">Forgot your password <a href="{%url 'authorization:reset_password'%}">Reset Password</a></p>
-		                    <p class="text-center">Don't have an account? <a href="{% url 'authorization:register' %}">Register</a></p>
+                    </div>
+                    <div class="form-group clearfix">
+                        <label for="password" class="col-md-4 control-label text-right">Password:</label>
+                        <div class="col-md-6">
+                            <input id="password" name="password" type="password" class="form-control" />
                         </div>
+                    </div>
+                    <div style="text-align: center;" class="col-md-6 col-md-offset-4">
+                        <input name="login" type="submit" value="Login" class="primary-btn" />
+                        <br><br><br>
+                        <p class="text-center">Forgot your password <a href="{%url 'authorization:reset_password'%}">Reset Password</a></p>
+                        <p class="text-center">Don't have an account? <a href="{% url 'authorization:register' %}">Register</a></p>
                     </div>
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
+</div>
 {% endblock %}

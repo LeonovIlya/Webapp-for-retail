@@ -1,71 +1,62 @@
 {% extends "base.html" %}
-
 {% load custom_tags %}
-
 {% block content %}
-
-<!-- BREADCRUMB -->
 <div id="breadcrumb" class="section">
-    <!-- container -->
     <div class="container">
-				<!-- row -->
         <div class="row">
             <div class="col-md-12">
                 <h3 class="breadcrumb-header">Order №{{ order.id }}</h3>
             </div>
         </div>
-        <!-- /row -->
     </div>
-    <!-- /container -->
 </div>
-<!-- /BREADCRUMB -->
-
-		<div class="section">
-			<div class="container">
-                <div class="col-md-12 order-details">
-                    <div class="section-title text-center">
-                        <h3 class="title">Your Order</h3><br><br>
-                        <p class="order-info"><b>Current status:</b> {{ order.status }}</p>
-                        <p class="order-info"><b>Created:</b> {{ order.created|date:"d/m/Y H:i"  }}</p>
-                        <p class="order-info"><b>Updated:</b> {{ order.updated|date:"d/m/Y H:i"  }}</p>
-                    </div>
-                    <div class="order-summary">
-                        <table class="table">
-                            <thead>
-                            <tr>
-                                <th scope="col">№</th>
-                                <th scope="col"></th>
-                                <th scope="col">Product</th>
-                                <th scope="col">QTY</th>
-                                <th style="width: 18%" scope="col">Price</th>
-                                <th style="width: 18%" scope="col">Total</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {% for product in products %}
-                            <tr class="clickable-row" data-href="{% url 'backend:product_info' product.product.id %}">
-                                <th scope="row">{{ forloop.counter }}</th>
-                                <td><img width="100" height="100" src={% if product.product.image %}
-											 		{{ product.product.image.url }}
-											     {% else %}
-													"/media/products/blank.png"{% endif %} alt=""></td>
-                                <td>{{ product.product.name }}</td>
-                                <td class="text-center">{{ product.quantity }}</td>
-                                <td>{{ product.price_per_item|floatformat }} ₽</td>
-                                <td>{{ product.total_price|floatformat }} ₽</td>
-                            </tr>
-                            {% endfor %}
-                            </tbody>
-                        </table>
-                        <div class="order-col">
-                            <div><strong>TOTAL</strong></div>
-                            <div><strong class="order-total">{{ total_price.total_price__sum|floatformat }} ₽</strong></div>
-                        </div>
-                    </div>
+<div class="section">
+    <div class="container">
+        <div class="col-md-12 order-details">
+            <div class="section-title text-center">
+                <h3 class="title">Your Order</h3><br><br>
+                <p class="order-info"><b>Current status:</b> {{ order.status }}</p>
+                <p class="order-info"><b>Created:</b> {{ order.created|date:"d/m/Y H:i"  }}</p>
+                <p class="order-info"><b>Updated:</b> {{ order.updated|date:"d/m/Y H:i"  }}</p>
+            </div>
+            <div class="order-summary">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th scope="col">№</th>
+                        <th scope="col"></th>
+                        <th scope="col">Product</th>
+                        <th scope="col">QTY</th>
+                        <th style="width: 18%" scope="col">Price</th>
+                        <th style="width: 18%" scope="col">Total</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for product in products %}
+                    <tr class="clickable-row" data-href="{% url 'backend:product_info' product.product.id %}">
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td><img width="100" height="100"
+                                 src="{% if product_info.product.image %}
+								  {{ product_info.product.image.url }}
+								  {% else %}
+								  /media/products/blank.png
+								  {% endif %}" alt=""></td>
+                        <td>{{ product.product.name }}</td>
+                        <td class="text-center">{{ product.quantity }}</td>
+                        <td>{{ product.price_per_item|floatformat }} ₽</td>
+                        <td>{{ product.total_price|floatformat }} ₽</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div class="order-col">
+                    <div><strong>TOTAL</strong></div>
+                    <div><strong class="order-total">{{ total_price.total_price__sum|floatformat }} ₽</strong></div>
                 </div>
             </div>
         </div>
-
+    </div>
+</div>
 <script>
 var elements = document.getElementsByClassName('clickable-row');
 for (var i = 0; i < elements.length; i++) {
@@ -78,5 +69,4 @@ for (var i = 0; i < elements.length; i++) {
     });
 }
 </script>
-
 {% endblock %}

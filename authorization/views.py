@@ -2,23 +2,18 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Sum, Q
 from django.db.utils import IntegrityError
-from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect, get_object_or_404
+from django.utils.encoding import force_str
 from django.utils.http import urlsafe_base64_decode
 
-from rest_framework.decorators import permission_classes
 from rest_framework.views import APIView
-from rest_framework import generics
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
 from rest_framework.response import Response
 
 from .forms import RegisterForm, SetPasswordForm, ResetPasswordForm
 from .models import ConfirmEmailToken, Comment, Contact, User
-from .serializers import UserRegSerializer, ContactSerializer
 from .tokens import account_activation_token
 
 from backend.models import Order, OrderItem, Product, ProductInfo, Shop
@@ -222,9 +217,12 @@ class ChangePasswordView(LoginRequiredMixin, APIView):
                                       'password!')
             return redirect('authorization:login')
         else:
-            data = {
-                'form': form
-            }
+            for error in list(form.errors.values()):
+                messages.error(request, error)
+        form = SetPasswordForm(self.request.user)
+        data = {
+            'form': form
+        }
         return Response(data)
 
 
@@ -251,6 +249,7 @@ class ResetPasswordView(APIView):
             'form': form
         }
         return Response(data)
+
 
 class OrderView(LoginRequiredMixin, APIView):
     template_name = 'order.html'
@@ -287,7 +286,7 @@ def confirm_email(request, user_id):
     messages.success(request, 'Check your mail!')
     return redirect('authorization:profile')
 
-def passwordResetConfirm(request, uidb64, token):
+def reset_password_confirm(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = User.objects.get(pk=uid)
@@ -299,17 +298,20 @@ def passwordResetConfirm(request, uidb64, token):
             form = SetPasswordForm(user, request.POST)
             if form.is_valid():
                 form.save()
-                messages.success(request, "Your password has been set. You may go ahead and <b>log in </b> now.")
+                messages.success(request, 'Your password has been changed '
+                                      'successfully!\nPlease login with new '
+                                      'password!')
                 return redirect('authorization:login')
             else:
                 for error in list(form.errors.values()):
                     messages.error(request, error)
 
         form = SetPasswordForm(user)
-        return render(request, 'account/reset_password_confirm.html', {'form':
-                                                                      form})
+        data = {
+            'form': form
+        }
+        return render(request, 'account/reset_password_confirm.html', data)
     else:
-        messages.error(request, "Link is expired")
-
-    messages.error(request, 'Something went wrong, redirecting back to Homepage')
+        messages.error(request, 'Link is expired')
+    messages.error(request, 'Something went wrong, redirecting to login page')
     return redirect('authorization:login')

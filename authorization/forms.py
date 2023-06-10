@@ -1,11 +1,10 @@
 from django import forms
-from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import UserCreationForm, SetPasswordForm, \
-    PasswordResetForm
+from django.contrib.auth.forms import UserCreationForm, PasswordResetForm, \
+    SetPasswordForm
 from captcha.fields import ReCaptchaField
 from captcha.widgets import ReCaptchaV2Checkbox
 
-from .models import Comment, User
+from .models import User
 
 USER_TYPE_CHOICES = (
     ('shop', 'Магазин'),

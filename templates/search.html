@@ -1,49 +1,45 @@
 {% extends "base.html" %}
-
 {% load custom_tags %}
-
 {% block content %}
-
 <div>
     <div >
         <h3 class="title">Search results:</h3>
     </div>
     {% if messages%}
-     {% for message in messages %}
-        <div class="container-fluid p-0">
-          <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-              <span aria-hidden="True">&times;</span>
-            </button>
-            {{ message }}
-          </div>
-        </div>
+        {% for message in messages %}
+            <div class="container-fluid p-0">
+                <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="True">&times;</span>
+                    </button>
+                    {{ message }}
+                </div>
+            </div>
         {% endfor %}
     {% else %}
         {% if results %}
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">№</th>
-                <th scope="col">Product name</th>
-                <th scope="col">Product description</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for r in results %}
-            <tr class="clickable-row"  data-href="{% url 'backend:product_info' r.id %}">
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>{{ r.name|highlight_search:search_query }}</td>
-                <td>{{ r.description|highlight_search:search_query }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">№</th>
+                        <th scope="col">Product name</th>
+                        <th scope="col">Product description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in results %}
+                        <tr class="clickable-row"  data-href="{% url 'backend:product_info' r.id %}">
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ r.name|highlight_search:search_query }}</td>
+                            <td>{{ r.description|highlight_search:search_query }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% else %}
         Nothing found
         {% endif %}
     {% endif %}
-
 </div>
 <script>
 var elements = document.getElementsByClassName('clickable-row');
@@ -57,5 +53,4 @@ for (var i = 0; i < elements.length; i++) {
     });
 }
 </script>
-
 {% endblock %}

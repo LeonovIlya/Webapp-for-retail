@@ -1,210 +1,178 @@
 {% extends "base.html" %}
-
 {% load custom_tags %}
-
 {% block content %}
-
-		<!-- SECTION -->
-		<div class="section">
-			<!-- container -->
-			<div class="container">
-				<!-- row -->
-				<div class="row">
-					<!-- ASIDE -->
-					<div id="aside" class="col-md-3">
-						<!-- aside Widget -->
-						<form method="GET">
-						<div class="aside">
-							<h3 class="aside-title">Categories</h3>
-							<div class="checkbox-filter">
-								{% for category in categories %}
-								<div class="input-checkbox">
-									<input type="checkbox" id="{{ category.name }}" name="category" value="{{ category.id }}" {% if category.id|to_str in category_vars %} checked {% endif %}>
-									<label for="{{ category.name }}">
-										<span></span>
-										{{ category.name }}
-										<small>({{ category.product_info.all.count }})</small>
-									</label>
-								</div>
-								{% endfor %}
-							</div>
+<div class="section">
+	<div class="container">
+		<div class="row">
+			<div id="aside" class="col-md-3">
+				<form method="GET">
+				<div class="aside">
+					<h3 class="aside-title">Categories</h3>
+					<div class="checkbox-filter">
+						{% for category in categories %}
+						<div class="input-checkbox">
+							<input type="checkbox" id="{{ category.name }}" name="category" value="{{ category.id }}" {% if category.id|to_str in category_vars %} checked {% endif %}>
+							<label for="{{ category.name }}">
+								<span></span>
+								{{ category.name }}
+								<small>({{ category.product_info.all.count }})</small>
+							</label>
 						</div>
-						<!-- /aside Widget -->
-
-						<!-- aside Widget -->
-						<div class="aside">
-							<h3 class="aside-title">Price</h3>
-								<div class="range_container">
-									<div class="sliders_control">
-									   <input id="fromSlider" type="range" value="{% if price_min %}{{ price_min }}{% else %}{{ price_min_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}"/>
-									   <input id="toSlider" type="range" value="{% if price_max %}{{ price_max }}{% else %}{{ price_max_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}"/>
-									</div>
-									<div class="form_control">
-									  <div class="form_control_container">
-										  <div class="form_control_container__time">Min</div>
-										  <input class="form_control_container__time__input" type="number" id="fromInput" name="min_price" value="{% if price_min %}{{ price_min }}{% else %}{{ price_min_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}">
-										</div>
-										<div class="form_control_container">
-										  <div class="form_control_container__time">Max</div>
-										  <input class="form_control_container__time__input" type="number" id="toInput" name="max_price" value="{% if price_max %}{{ price_max }}{% else %}{{ price_max_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}">
-										</div>
-									</div>
-								</div>
-						</div>
-						<!-- /aside Widget -->
-
-						<!-- aside Widget -->
-						<div class="aside">
-							<h3 class="aside-title">Brand</h3>
-							<div class="checkbox-filter">
-								{% for brand in brands %}
-								<div class="input-checkbox">
-									<input type="checkbox" id="{{ brand.name }}" name="brand" value="{{ brand.id }}" {% if brand.id|to_str in brand_vars %} checked {% endif %}>
-									<label for="{{ brand.name }}">
-										<span></span>
-										{{ brand.name }}
-										<small>({{ brand.product_info.all.count }})</small>
-									</label>
-								</div>
-								{% endfor %}
-							</div>
-						</div>
-						<div class="aside">
-							<h3 class="aside-title">Sort By:</h3>
-							<select name="sort_by" class="input-select">
-								<option value="price">Price↑</option>
-								<option value="-price">Price↓</option>
-								<option value="product__name">Name↑</option>
-								<option value="-product__name">Name↓</option>
-							</select>
-						</div>
-							<div class="aside">
-								<h3 class="aside-title">Show:</h3>
-								<select name="paginate_by" class="input-select">
-									<option value="10">10</option>
-									<option value="20">20</option>
-									<option value="50">50</option>
-									<option value="100">100</option>
-								</select>
-						</div>
-						<div class="vertical-center-button">
-								<input class="primary-btn" value="Submit" type="submit">
-						</div>
-						</form>
-						<!-- /aside Widget -->
+						{% endfor %}
 					</div>
-
-					<!-- STORE -->
-					<div id="store" class="col-md-9">
-						<!-- store top filter -->
-						<div class="store-filter clearfix">
-							<div class="right-total-product">
-								Total products: <b>{{ products|length }}</b>
-							</div>
-						</div>
-						<!-- /store top filter -->
-
-						<!-- store products -->
-						<div class="row">
-							{% for message in messages %}
-							<div class="container-fluid p-0">
-							  <div class="alert {{ message.tags }} alert-dismissible" role="alert" >
-								<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-								  <span aria-hidden="True">&times;</span>
-								</button>
-								{{ message }}
-							  </div>
-							</div>
-							{% endfor %}
-							<!-- product -->
-							{% for pi in products_info %}
-							<div class="col-md-4 col-xs-6">
-								<div class="product">
-									<div class="product-img">
-										<img src="{% if pi.product.image %}
-											 	  {{ pi.product.image.url }}
-											      {% else %}
-												  /media/products/blank.png
-										          {% endif %}" alt="">
-									</div>
-									<div class="product-body">
-										<p class="product-brand">{{ pi.brand.name }}</p>
-										<h4 class="product-name"><a href="{% url 'backend:product_info' pi.product_id %}">{{ pi.product.name }}</a></h4>
-										<p class="product-category">{{ pi.category }}</p>
-										<h4 class="product-price">{{ pi.price }} ₽</h4>
-										<div class="product-rating">
-											{% if pi.product.average_rating %}
-											{{ pi.product.average_rating|floatformat }} <i class="fa fa-star"></i>
-											{% else %}
-											{% endif %}
-										</div>
-									</div>
-									<div class="add-to-cart">
-										{% if user.is_authenticated %}
-											{% if pi.quantity|to_int == 0 %}
-											<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>OUT OF STOCK</button>
-											{% else%}
-											<button class="add-to-cart-btn" onclick="location.href='{% url 'backend:add_to_cart' pi.product_id %}'"><i class="fa fa-shopping-cart"></i>add to cart</button>
-											{% endif %}
-										{% endif %}
-									</div>
-								</div>
-							</div>
-							{% endfor %}
-							<!-- /product -->
-
-							<div class="clearfix visible-sm visible-xs"></div>
-							<div class="clearfix visible-lg visible-md"></div>
-							<div class="clearfix visible-sm visible-xs"></div>
-							<div class="clearfix visible-lg visible-md visible-sm visible-xs"></div>
-							<div class="clearfix visible-sm visible-xs"></div>
-						</div>
-						<!-- /store products -->
-
-						 <!--Pagination-->
-						<div class="store-filter clearfix">
-							<nav aria-label="Page navigation example">
-							  <ul class="store-pagination">
-								{% if products_info.has_previous %}
-								  <li class="page-item">
-									<a class="page-link" href="?{% query_transform page=products_info.previous_page_number %}">&lt&lt</a>
-								  </li>
-								{% else %}
-								  <li class="page-item disabled">
-									<a class="page-link" href="#" tabindex="-1" aria-disabled="True">&lt&lt</a>
-								  </li>
-								{% endif %}
-								{% for i in products_info.paginator.page_range %}
-								  {% if products_info.number == i %}
-									<li class="page-item active" aria-current="page">
-									  <span class="page-link">
-										{{ i }}
-										<span class="sr-only">(current)</span>
-									  </span>
-									</li>
-								  {% else %}
-									<li class="page-item"><a class="page-link" href="?{% query_transform page=i %}">{{ i }}</a></li>
-								  {% endif %}
-								{% endfor %}
-								{% if products_info.has_next %}
-								  <li class="page-item">
-									<a class="page-link" href="?{% query_transform page=products_info.next_page_number %}">&gt&gt</a>
-								  </li>
-								{% else %}
-								  <li class="page-item disabled">
-									<a class="page-link" href="#" tabindex="-1" aria-disabled="True">&gt&gt</a>
-								  </li>
-								{% endif %}
-							  </ul>
-							</nav>
-						</div>
-							<!--end of Pagination-->
-					</div>
-					<!-- /STORE -->
 				</div>
-				<!-- /row -->
+				<div class="aside">
+					<h3 class="aside-title">Price</h3>
+						<div class="range_container">
+							<div class="sliders_control">
+							    <input id="fromSlider" type="range" value="{% if price_min %}{{ price_min }}{% else %}{{ price_min_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}"/>
+							    <input id="toSlider" type="range" value="{% if price_max %}{{ price_max }}{% else %}{{ price_max_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}"/>
+							</div>
+							<div class="form_control">
+							    <div class="form_control_container">
+									<div class="form_control_container__time">Min</div>
+								    <input class="form_control_container__time__input" type="number" id="fromInput" name="min_price" value="{% if price_min %}{{ price_min }}{% else %}{{ price_min_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}">
+							    </div>
+								<div class="form_control_container">
+									<div class="form_control_container__time">Max</div>
+								    <input class="form_control_container__time__input" type="number" id="toInput" name="max_price" value="{% if price_max %}{{ price_max }}{% else %}{{ price_max_abs }}{% endif %}" min="{{ price_min_abs }}" max="{{ price_max_abs }}">
+								</div>
+							</div>
+						</div>
+				</div>
+				<div class="aside">
+					<h3 class="aside-title">Brand</h3>
+					<div class="checkbox-filter">
+						{% for brand in brands %}
+						<div class="input-checkbox">
+							<input type="checkbox" id="{{ brand.name }}" name="brand" value="{{ brand.id }}" {% if brand.id|to_str in brand_vars %} checked {% endif %}>
+							<label for="{{ brand.name }}">
+								<span></span>
+								{{ brand.name }}
+								<small>({{ brand.product_info.all.count }})</small>
+							</label>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="aside">
+					<h3 class="aside-title">Sort By:</h3>
+					<select name="sort_by" class="input-select">
+						<option value="price">Price↑</option>
+						<option value="-price">Price↓</option>
+						<option value="product__name">Name↑</option>
+						<option value="-product__name">Name↓</option>
+					</select>
+				</div>
+					<div class="aside">
+						<h3 class="aside-title">Show:</h3>
+						<select name="paginate_by" class="input-select">
+							<option value="10">10</option>
+							<option value="20">20</option>
+							<option value="50">50</option>
+							<option value="100">100</option>
+						</select>
+				</div>
+				<div class="vertical-center-button">
+						<input class="primary-btn" value="Submit" type="submit">
+				</div>
+				</form>
 			</div>
-			<!-- /container -->
+			<div id="store" class="col-md-9">
+				<div class="store-filter clearfix">
+					<div class="right-total-product">
+						Total products: <b>{{ products|length }}</b>
+					</div>
+				</div>
+				<div class="row">
+					{% for message in messages %}
+					<div class="container-fluid p-0">
+						<div class="alert {{ message.tags }} alert-dismissible" role="alert" >
+							<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+								<span aria-hidden="True">&times;</span>
+							</button>
+							{{ message }}
+					    </div>
+					</div>
+					{% endfor %}
+					{% for pi in products_info %}
+					<div class="col-md-4 col-xs-6">
+						<div class="product">
+							<div class="product-img">
+								<img src="{% if pi.product.image %}
+										  {{ pi.product.image.url }}
+										  {% else %}
+										  /media/products/blank.png
+										  {% endif %}" alt="">
+							</div>
+							<div class="product-body">
+								<p class="product-brand">{{ pi.brand.name }}</p>
+								<h4 class="product-name"><a href="{% url 'backend:product_info' pi.product_id %}">{{ pi.product.name }}</a></h4>
+								<p class="product-category">{{ pi.category }}</p>
+								<h4 class="product-price">{{ pi.price }} ₽</h4>
+								<div class="product-rating">
+									{% if pi.product.average_rating %}
+									{{ pi.product.average_rating|floatformat }} <i class="fa fa-star"></i>
+									{% else %}
+									{% endif %}
+								</div>
+							</div>
+							<div class="add-to-cart">
+								{% if user.is_authenticated %}
+									{% if pi.quantity|to_int == 0 %}
+									<button class="add-to-cart-btn"><i class="fa fa-shopping-cart"></i>OUT OF STOCK</button>
+									{% else%}
+									<button class="add-to-cart-btn" onclick="location.href='{% url 'backend:add_to_cart' pi.product_id %}'"><i class="fa fa-shopping-cart"></i>add to cart</button>
+									{% endif %}
+								{% endif %}
+							</div>
+						</div>
+					</div>
+					{% endfor %}
+					<div class="clearfix visible-sm visible-xs"></div>
+					<div class="clearfix visible-lg visible-md"></div>
+					<div class="clearfix visible-sm visible-xs"></div>
+					<div class="clearfix visible-lg visible-md visible-sm visible-xs"></div>
+					<div class="clearfix visible-sm visible-xs"></div>
+				</div>
+				<div class="store-filter clearfix">
+					<nav aria-label="Page navigation example">
+						<ul class="store-pagination">
+						{% if products_info.has_previous %}
+							<li class="page-item">
+							<a class="page-link" href="?{% query_transform page=products_info.previous_page_number %}">&lt&lt</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+							<a class="page-link" href="#" tabindex="-1" aria-disabled="True">&lt&lt</a>
+							</li>
+						{% endif %}
+						{% for i in products_info.paginator.page_range %}
+							{% if products_info.number == i %}
+							<li class="page-item active" aria-current="page">
+								<span class="page-link">
+									{{ i }}
+									<span class="sr-only">(current)</span>
+								</span>
+							</li>
+							{% else %}
+							<li class="page-item"><a class="page-link" href="?{% query_transform page=i %}">{{ i }}</a></li>
+							{% endif %}
+						{% endfor %}
+						{% if products_info.has_next %}
+							<li class="page-item">
+							<a class="page-link" href="?{% query_transform page=products_info.next_page_number %}">&gt&gt</a>
+							</li>
+						{% else %}
+							<li class="page-item disabled">
+							<a class="page-link" href="#" tabindex="-1" aria-disabled="True">&gt&gt</a>
+							</li>
+						{% endif %}
+						</ul>
+					</nav>
+				</div>
+			</div>
 		</div>
-		<!-- /SECTION -->
+	</div>
+</div>
 {% endblock %}

@@ -193,6 +193,6 @@ CSRF_TRUSTED_ORIGINS = [
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'shop',
-    'DESCRIPTION': 'API Service for ordering goods for retail chains',
+    'DESCRIPTION': 'E-commerce',
     'VERSION': '1.0.0',
 }

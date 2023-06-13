@@ -5,7 +5,7 @@ from .models import Comment, Contact, User
 
 
 @admin.register(User)
-class UserAdmin(UserAdmin):
+class AdminUser(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         (_('Personal info'), {'fields': ('username', 'company', 'position',

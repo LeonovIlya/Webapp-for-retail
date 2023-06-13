@@ -11,12 +11,12 @@ class ShopAdmin(admin.ModelAdmin):
 
 
 @admin.register(Category)
-class ShopAdmin(admin.ModelAdmin):
+class CategoryAdmin(admin.ModelAdmin):
     list_display = ['id', 'name']
 
 
 @admin.register(Product)
-class ShopAdmin(admin.ModelAdmin):
+class ProductAdmin(admin.ModelAdmin):
     list_display = ['id', 'name', 'image']
 
 

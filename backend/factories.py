@@ -1,4 +1,3 @@
-import os
 import factory
 import factory.fuzzy
 import openai
@@ -8,15 +7,11 @@ import shutil
 import time
 
 from faker import Faker
-from io import BytesIO
-from PIL import Image
 
 import config
 from backend.models import Brand, Category, Parameter, Product, ProductInfo,\
     ProductsParameters, Shop
-
-from shop.settings import BASE_DIR, MEDIA_ROOT
-from backend.test import generate_pic
+from shop.settings import MEDIA_ROOT
 
 
 openai.api_key = config.AI_API_TOKEN

@@ -17,7 +17,6 @@ from .models import ConfirmEmailToken, Comment, Contact, User
 from .tokens import account_activation_token
 
 from backend.models import Order, OrderItem, Product, ProductInfo, Shop
-
 from shop.task import send_email_to_confirm_user_email, \
     send_email_to_reset_password
 
@@ -25,12 +24,10 @@ from shop.task import send_email_to_confirm_user_email, \
 class LoginView(APIView):
     template_name = 'login.html'
 
-    @staticmethod
-    def get(request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         return Response()
 
-    @staticmethod
-    def post(request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         email = request.data['email']
         password = request.data['password']
         user = authenticate(email=email, password=password)
@@ -45,8 +42,7 @@ class LoginView(APIView):
 class RegistrationView(APIView):
     template_name = 'register.html'
 
-    @staticmethod
-    def get(request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('authorization:profile')
         else:
@@ -56,8 +52,8 @@ class RegistrationView(APIView):
             }
             return Response(data)
 
-    @staticmethod
-    def post(request, *args, **kwargs):
+
+    def post(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect('authorization:profile')
         else:

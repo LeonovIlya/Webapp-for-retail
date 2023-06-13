@@ -1,6 +1,5 @@
 import factory
 from authorization.models import User, Contact
-from backend.factories import ShopFactory
 
 
 @factory.django.mute_signals()

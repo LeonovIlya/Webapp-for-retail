@@ -6,8 +6,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django_rest_passwordreset.tokens import get_token_generator
 
-from .managers import UserManager
 from backend.models import Product
+from .managers import UserManager
 
 USER_TYPE_CHOICES = (
     ('shop', 'Магазин'),

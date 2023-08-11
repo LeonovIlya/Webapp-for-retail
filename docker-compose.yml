@@ -1,0 +1,29 @@
+services:
+  pgdb:
+    image: postgres:latest
+    container_name: postgres-container
+    restart: always
+    environment:
+      - POSTGRES_NAME=django-retail
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+
+  web:
+    build: .
+    container_name: django-container
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./.env
+    depends_on:
+      pgdb:
+        condition: service_healthy
+volumes:
+  postgresql_data:

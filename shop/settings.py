@@ -11,9 +11,11 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
 }
 
-DEBUG = True
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
-ALLOWED_HOSTS = ['*']
+DEBUG = int(os.environ.get("DEBUG", default=0))
+
+ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
@@ -24,14 +26,15 @@ if DEBUG:
         os.path.join(BASE_DIR, 'static')
     ]
 else:
-    STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+    STATIC_ROOT = [
+        os.path.join(BASE_DIR, 'static')
+    ]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STORAGE = os.path.join(BASE_DIR, 'storage')
 
-SECRET_KEY = 'my_super_secret_key_1234567890987654321_!@#$%^&*()(*&^%$#@!'
 
 INSTALLED_APPS = [
     'grappelli',
@@ -94,7 +97,8 @@ DATABASES = {
         'NAME': config.DB_NAME,
         'USER': config.DB_USER,
         'PASSWORD': config.DB_PASSWORD,
-        'HOST': config.DB_HOST,
+        'HOST': config.DB_HOST,  # for standart use
+        # 'HOST': 'pgdb',  # for docker use
         'PORT': config.DB_PORT,
     }
 }
